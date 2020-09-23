@@ -1,0 +1,59 @@
+state,county,fips,population
+California,Alameda,06001,1643700
+California,Alpine,06003,1146
+California,Amador,06005,37829
+California,Butte,06007,227075
+California,Calaveras,06009,45235
+California,Colusa,06011,21464
+California,Contra Costa,06013,1133247
+California,Del Norte,06015,27424
+California,El Dorado,06017,186661
+California,Fresno,06019,978130
+California,Glenn,06021,27897
+California,Humboldt,06023,135768
+California,Imperial,06025,180216
+California,Inyo,06027,18085
+California,Kern,06029,883053
+California,Kings,06031,150075
+California,Lake,06033,64148
+California,Lassen,06035,31185
+California,Los Angeles,06037,10098052
+California,Madera,06039,155013
+California,Marin,06041,260295
+California,Mariposa,06043,17540
+California,Mendocino,06045,87422
+California,Merced,06047,269075
+California,Modoc,06049,8938
+California,Mono,06051,14174
+California,Monterey,06053,433212
+California,Napa,06055,140530
+California,Nevada,06057,99092
+California,Orange,06059,3164182
+California,Placer,06061,380077
+California,Plumas,06063,18699
+California,Riverside,06065,2383286
+California,Sacramento,06067,1510023
+California,San Benito,06069,59416
+California,San Bernardino,06071,2135413
+California,San Diego,06073,3302833
+California,San Francisco,06075,870044
+California,San Joaquin,06077,732212
+California,San Luis Obispo,06079,281455
+California,San Mateo,06081,765935
+California,Santa Barbara,06083,443738
+California,Santa Clara,06085,1922200
+California,Santa Cruz,06087,273765
+California,Shasta,06089,179085
+California,Sierra,06091,2930
+California,Siskiyou,06093,43540
+California,Solano,06095,438530
+California,Sonoma,06097,501317
+California,Stanislaus,06099,539301
+California,Sutter,06101,95872
+California,Tehama,06103,63373
+California,Trinity,06105,12862
+California,Tulare,06107,460477
+California,Tuolumne,06109,53932
+California,Ventura,06111,848112
+California,Yolo,06113,214977
+California,Yuba,06115,75493
