@@ -1,0 +1,6 @@
+language: r
+cache: packages
+
+# Run tests
+script:
+  - Rscript -e "testthat::test_dir('tests', stop_on_failure = TRUE)"
