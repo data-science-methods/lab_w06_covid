@@ -1,4 +1,5 @@
 Imports:
     testthat,
-    devtools
+    devtools,
+    tidyverse
     
