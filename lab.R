@@ -33,6 +33,7 @@ per_pop = 1e6
 pop = read_csv(file.path('data', 'county_population.csv'))
 
 
+
 #' # Problem 1 #
 #' Take a few minutes to read about the provenance of the data we'll be using:  
 #' 
@@ -49,6 +50,7 @@ pop = read_csv(file.path('data', 'county_population.csv'))
 #' 2. How about the Google Mobility data? 
 #' 
 #' 
+
 
 
 #' # Problem 2 #
@@ -73,6 +75,7 @@ data("nytcovcounty")
 #' 
 
 
+
 #' # Problem 3 #
 #' For our analysis, the `nytcovcounty` dataset needs three things: 
 #' - Filtered down to California between April 1 and August 31, 2020
@@ -95,6 +98,7 @@ daily_diff = function(x, order_var) {
 
 #' 3. Finally we need to calculate rates per 1 million residents.  Write a pipe that takes `daily_diff` as input, joins it with the `pop` dataframe using appropriate variables, removes any rows with missing FIPS codes, and constructs the variables `cases_per_pop` and `deaths_per_pop`.  When constructing these variables, multiply by `per_pop` to get rates per 1 million residents.  Assign the result to `covid_df`, since this contains the Covid data for our analysis.  
 #' 
+
 
 
 #' # Problem 4 #
@@ -159,6 +163,17 @@ google_mobility
 
 #' 6. In the `plots` folder, take a look at `mobility.png`.  Recreate this plot.  (Use whatever theme and colors that you like.  To create a horizontal line: `geom_hline(yintercept = 0, alpha = .5)`.  You don't need to save to disk.) 
 #' 
+
+#' 7. Suppose, on a certain day, the value for `type == retail` is -40.  What does this mean?  
+#' 
+#' 
+#' 
+
+#' 8. Again, the standard narrative of Covid-19 in California says that people were staying home in the spring, then going out more in May-June as stay-at-home orders were lifted.  Does this data support that narrative?  
+#' 
+#' 
+#' 
+
 
 
 #' # Problem 6 #
