@@ -146,12 +146,19 @@ google_mobility
 #' 
 #' 
 
-#' 3. Write a pipe that does this filtering; selects the columns for county name, identifier, date, type, and `pct_diff`; and assigns the result to `mob_df`. Hint: Construct a variable `counties` that contains the county identifiers from `covid_df`.  Then use this on the right-hand-side of a condition in `filter()`. 
+#' 3. Write a pipe that does this filtering; also filters to dates between April 1 and August 31; selects the columns for county name, identifier, date, type, and `pct_diff`; and assigns the result to `mob_df`. Hint: Construct a variable `counties` that contains the county identifiers from `covid_df`.  Then use this on the right-hand-side of a condition in `filter()`. 
 #' 
 
+#' 4. Our two analysis dataframes (`covid_df` and `mob_df`) use different names for the same variables.  We can use `rename()` to change the names of variables in a dataframe: `rename(dataf, newname = oldname)`. Rewrite your code above, adding a step that renames the county name and identifier variables in `mob_df` to match the names in `covid_df`. 
+#' 
 
+#' 5. During our time period of interest, does `mob_df` contain mobility data for every county in California?  If some counties are missing data, which ones are they?  Hints: There are 58 counties in California.  Try counting and then filtering to identify counties with outlying row counts.  
+#' 
+#' 
+#' 
 
-
+#' 6. In the `plots` folder, take a look at `mobility.png`.  Recreate this plot.  (Use whatever theme and colors that you like.  To create a horizontal line: `geom_hline(yintercept = 0, alpha = .5)`.  You don't need to save to disk.) 
+#' 
 
 
 #' # Problem 6 #

@@ -31,3 +31,15 @@ test_that("3.3. Length of `covid_df`", {
 })
 
 warning('Problem 4 not checked automatically')
+
+df_5_3 = google_mobility %>% 
+    filter(census_fips_code %in% df_3_3$fips, 
+           date >= '2020-04-01', date <= '2020-08-31') %>% 
+    select(sub_region_2, census_fips_code, date, type, pct_diff)
+
+test_that("5.3. Length of filtered mobility data", {
+    expect_equivalent(nrow(mob_df), 50736L)
+})
+test_that("5.3. Number of columns of filtered mobility data", {
+    expect_equivalent(ncol(mob_df), 5L)
+})
