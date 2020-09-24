@@ -29,3 +29,5 @@ test_that("3.2. Daily change in cases (compare to fixed reference)", {
 test_that("3.3. Length of `covid_df`", {
     expect_equivalent(nrow(covid_df), 8578L)
 })
+
+warning('Problem 4 not checked automatically')

@@ -98,10 +98,61 @@ daily_diff = function(x, order_var) {
 
 
 #' # Problem 4 #
-#' *[todo: visual EDA of covid cases and deaths; all counties and 4 counties]
+#' 1. To explore these time-series data visually, we'll want to use line plots of cases or deaths over time.  The line group needs the `group` aesthetic to determine which values should be treated as part of a single line.  Uncomment and fill in the blanks to plot cases per 1,000,000 residents over time for each county.  
+#' 
+
+# ggplot(covid_df, aes(---, ---, group = ---)) +
+#     geom_line()
+
+#' 2. Because there are so many counties, the lines are heavily overplotted.  Modify your code to facet by county.  Try both `scales = 'fixed'` and `scales = 'free_y'`. 
+#' 
+
+#' 3. The plot indicates that, on a few days, some counties gain or lose thousands of cases per million residents.  What's up this that?  Hints:  `plotly::ggplotly()` to create an interactive version of the most recent plot.  Use `filter()` to narrow down the data to particular counties during short periods of time, and `View()` to peruse the data after filtering.  
+#' 
+#' 
+#' 
+
+#' 4. We can pass data through a pipe before calling `ggplot()`.  Let's focus on 4 counties of interest, two rural and two urban:  Butte, Merced, Sacramento, and Santa Clara.  Uncomment and fill in the blanks: 
+
+focal_counties = c('Butte', 'Merced', 'Sacramento', 'Santa Clara')
+
+# --- %>% 
+#     filter(county %in% focal_counties) %>% 
+#     ggplot(aes(---------)) +
+#     -------
+
+#' Note that we need to use plus `+` to connect ggplot layers, not the pipe `%>%`. You can get weird errors if you accidentally use the wrong one.  I do this all the time. 
+#' 
+
+#' 5. The common narrative of Covid-19 in California runs something like this:  "Despite being one of the locations where Covid-19 was detected early on, California mostly avoided the large outbreak that hit New York in the spring.  About a month after stay-at-home rules were relaxed in late May, cases began to increase in June, leading to a large outbreak across the state that peaked in July.  This outbreak has largely faded by September."  Based on your (brief) visual EDA of the data, does this narrative seem accurate?  
+#' 
+#' 
+#' 
+
+
 
 #' # Problem 5 #
-#' *[Load mobility data; visual EDA]*
+#' Now let's turn to the Google mobility data.  It's rather large.  
+data("google_mobility")
+google_mobility
+
+#' 1. How many distinct values of `type` are there?  What does this variable indicate?  
+#' 
+#' 
+#' 
+
+#' 2. We want to filter this data down to just counties in California.  What column(s) can we use to do this?  
+#' 
+#' 
+#' 
+
+#' 3. Write a pipe that does this filtering; selects the columns for county name, identifier, date, type, and `pct_diff`; and assigns the result to `mob_df`. Hint: Construct a variable `counties` that contains the county identifiers from `covid_df`.  Then use this on the right-hand-side of a condition in `filter()`. 
+#' 
+
+
+
+
+
 
 #' # Problem 6 #
 #' *[June mobility; July cases; join; scatterplot]*
