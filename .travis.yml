@@ -3,5 +3,5 @@ cache: packages
 
 # Run tests
 script:
-  - Rscript -e "devtools::install_github('kjhealy/covdata')"
+  - Rscript -e "remotes::install_github('kjhealy/covdata')"
   - Rscript -e "testthat::test_dir('tests', stop_on_failure = TRUE)"
