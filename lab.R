@@ -193,7 +193,7 @@ mob_df %>%
     nrow()
 
 ## Use anti_join to figure out which ones: Alpine and Sierra
-anti_join(covid_df, mob_df, by = 'fips') %>% 
+anti_join(covid_df, mob_df, by = 'county') %>% 
     count(county)
 
 ## 3 that are missing some values: Modoc, Plumas, Trinity
@@ -204,15 +204,15 @@ mob_df %>%
 #' 4. *In the `plots` folder, take a look at `mobility.png`.  Recreate this plot.  (Use whatever theme and colors that you like.  To create a horizontal line: `geom_hline(yintercept = 0, alpha = .5)`.  You don't need to save to disk.)* 
 #' 
 
-covid_df %>% 
-    filter(county %in% focal_counties) %>% 
-    count(county, fips) %>% 
-    pull(fips)
-
 mob_df %>% 
     filter(county %in% focal_counties, 
-           type %in% c('residential', 'retail', 'parks'))
-ggplot(mob_df, aes(date, pct_diff))
+           type %in% c('residential', 'retail', 'parks')) %>% 
+    ggplot(aes(date, pct_diff, group = type, color = type)) +
+    geom_line() +
+    geom_hline(yintercept = 0, alpha = .5) +
+    facet_wrap(vars(county)) +
+    theme_bw()
+ggsave(file.path('plots', 'mobility.png'), width = 4, height = 3, scale = 2)
 
 #' 5. *Again, the standard narrative of Covid-19 in California says that people were staying home in the spring, then going out more in May-June as stay-at-home orders were lifted.  Does this data support that narrative?*  
 #' 
