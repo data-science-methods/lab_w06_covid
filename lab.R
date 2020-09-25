@@ -18,6 +18,8 @@
 ## Setup
 ## **IMPORTANT**: Add all dependencies to `DESCRIPTION`
 library(tidyverse)
+## `covdata` has to be installed from GitHub. Don't put it in `DESCRIPTION`.
+## If you get errors on installation, see the file `covdata_install.md`. 
 # devtools::install_github('kjhealy/covdata')
 library(covdata)
 
