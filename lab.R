@@ -141,7 +141,7 @@ focal_counties = c('Butte', 'Merced', 'Sacramento', 'Santa Clara')
 
 
 #' # Problem 5 #
-#' *Now let's turn to the Google mobility data.  The full version in `covdata` has nearly 15 million rows, and couldn't be loaded in RStudio Cloud when I was testing this lab.  (The memory cap for a free RStudio Cloud instance is 1 GB.)  So I've included a prefiltered version in the `data` folder.   
+#' *Now let's turn to the Google mobility data.  The full version in `covdata` has nearly 15 million rows, and couldn't be loaded in RStudio Cloud when I was testing this lab.  (The memory cap for a free RStudio Cloud instance is 1 GB.)  So I've included a prefiltered version in the `data` folder: only counties in California, between April 1 and August 31, 2020.   
 #' 
 
 # data("google_mobility")
@@ -153,36 +153,27 @@ mob_df = read_csv(file.path('data', 'mobility.csv'))
 #' 
 #' 
 
-#' 2. *We want to filter this data down to just counties in California.  What column(s) can we use to do this?*  
+#' 2. *How about `pct_diff`?* 
 #' 
 #' 
 #' 
 
-#' 3. *Write a pipe that does this filtering; also filters to dates between April 1 and August 31; selects the columns for county name, identifier, date, type, and `pct_diff`; and assigns the result to `mob_df`. Hint: Construct a variable `counties` that contains the county identifiers from `covid_df`.  Then use this on the right-hand-side of a condition in `filter()`.* 
-#' 
-
-#' 4. *Our two analysis dataframes (`covid_df` and `mob_df`) use different names for the same variables.  We can use `rename()` to change the names of variables in a dataframe: `rename(dataf, newname = oldname)`. Rewrite your code above, adding a step that renames the county name and identifier variables in `mob_df` to match the names in `covid_df`.* 
-#' 
-
-#' 5. *During our time period of interest, does `mob_df` contain mobility data for every county in California?  If some counties are missing data, which ones are they?  Hints: There are 58 counties in California.  Try counting and then filtering to identify counties with outlying row counts.*  
+#' 3. *During our time period of interest, does `mob_df` contain mobility data for every county in California?  If some counties are missing data, which ones are they?  Hints: There are 58 counties in California.  Try counting and then filtering to identify counties with outlying row counts.*  
 #' 
 #' 
 #' 
 
-#' 6. *In the `plots` folder, take a look at `mobility.png`.  Recreate this plot.  (Use whatever theme and colors that you like.  To create a horizontal line: `geom_hline(yintercept = 0, alpha = .5)`.  You don't need to save to disk.)* 
+#' 4. *In the `plots` folder, take a look at `mobility.png`.  Recreate this plot.  (Use whatever theme and colors that you like.  To create a horizontal line: `geom_hline(yintercept = 0, alpha = .5)`.  You don't need to save to disk.)* 
 #' 
 
-#' 7. *Suppose, on a certain day in a certain county, the value for `type == retail` is -40.  What does this mean?*  
-#' 
-#' 
-#' 
-
-#' 8. *Again, the standard narrative of Covid-19 in California says that people were staying home in the spring, then going out more in May-June as stay-at-home orders were lifted.  Does this data support that narrative?*  
+#' 5. *Again, the standard narrative of Covid-19 in California says that people were staying home in the spring, then going out more in May-June as stay-at-home orders were lifted.  Does this data support that narrative?*  
 #' 
 #' 
 #' 
 
-#' 9. *What other potentially interesting patterns do you see in these mobility data?* 
+#' 6. *What other potentially interesting patterns do you see in these mobility data?* 
+#' 
+#' 
 
 #' *(Just an aside.  Most presentations of Covid-19 data use 7-day rolling averages.  Either they don't show raw counts at all, or they emphasize the rolling averages rather than the raw counts.  In the `plots` folder, `chronicle.png` shows an example from the _San Francisco Chronicle_.  Because this lab is already super long and complicated, I decided to skip the rolling averages.  Two common packages for calculating rolling averages are (`zoo`)[https://cran.r-project.org/web/packages/zoo/index.html] and (`slider`)[https://cran.r-project.org/web/packages/slider/].)*
 #' 
