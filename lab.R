@@ -173,18 +173,46 @@ mob_df = read_csv(file.path('data', 'mobility.csv'))
 #' 
 #' 
 
+count(mob_df, type)
+
 #' 2. *How about `pct_diff`?* 
 #' 
 #' 
 #' 
+
+summary(mob_df$pct_diff)
 
 #' 3. *During our time period of interest, does `mob_df` contain mobility data for every county in California?  If some counties are missing data, which ones are they?  Hints: There are 58 counties in California.  Try counting and then filtering to identify counties with outlying row counts.*  
 #' 
 #' 
 #' 
 
+## 2 missing entirely
+mob_df %>% 
+    count(county) %>% 
+    nrow()
+
+## Use anti_join to figure out which ones: Alpine and Sierra
+anti_join(covid_df, mob_df, by = 'fips') %>% 
+    count(county)
+
+## 3 that are missing some values: Modoc, Plumas, Trinity
+mob_df %>% 
+    count(county) %>% 
+    filter(n != 918)
+
 #' 4. *In the `plots` folder, take a look at `mobility.png`.  Recreate this plot.  (Use whatever theme and colors that you like.  To create a horizontal line: `geom_hline(yintercept = 0, alpha = .5)`.  You don't need to save to disk.)* 
 #' 
+
+covid_df %>% 
+    filter(county %in% focal_counties) %>% 
+    count(county, fips) %>% 
+    pull(fips)
+
+mob_df %>% 
+    filter(county %in% focal_counties, 
+           type %in% c('residential', 'retail', 'parks'))
+ggplot(mob_df, aes(date, pct_diff))
 
 #' 5. *Again, the standard narrative of Covid-19 in California says that people were staying home in the spring, then going out more in May-June as stay-at-home orders were lifted.  Does this data support that narrative?*  
 #' 
