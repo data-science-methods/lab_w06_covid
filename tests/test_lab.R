@@ -34,18 +34,18 @@ test_that("3.3. `covid_df` is not grouped", {
 })
 test_that("3.3. Compare mean deaths per population to fixed reference", {
     deaths_per_pop_ref = mean(df_3_3$deaths_per_pop, na.rm = TRUE)
-    expect_equivalent(mean(covid_df$deaths_per_pop_ref, na.rm = TRUE), 
-                      deathts_per_pop_ref)
+    expect_equivalent(mean(covid_df$deaths_per_pop, na.rm = TRUE), 
+                      deaths_per_pop_ref)
 })
 
 warning('Problem 4 not checked automatically')
 
 warning('Problem 5 not checked automatically')
 
-df_6_2 = df_5_3 %>% 
+df_6_2 = mob_df %>% 
     filter(date >= '2020-06-01', date <= '2020-06-30', 
            type == 'parks') %>% 
-    group_by(sub_region_2, census_fips_code) %>% 
+    group_by(county, fips) %>% 
     summarize(parks = mean(pct_diff, na.rm = TRUE)) %>% 
     ungroup() %>% 
     filter(!is.na(parks))
@@ -82,7 +82,7 @@ test_that("6.3. Compare mean cases per pop to a reference value", {
                       cases_per_pop_ref)
 })
 
-df_6_4 = inner_join(df_6_3, df_6_2, by = c('fips' = 'census_fips_code'))
+df_6_4 = inner_join(df_6_3, df_6_2, by = c('county', 'fips'))
 
 test_that("6.4. Compare `summer_df` FIPS codes to a reference list", {
     # expect_equivalent(nrow(summer_df), 56L)
