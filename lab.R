@@ -7,11 +7,11 @@
 #'     toc: true
 #' ---
 
-#' In this lab, we'll be exploring county-level data on the Covid-19 pandemic in California, including both case and mortality data as well as "mobility data" from Google. 
+#' *In this lab, we'll be exploring county-level data on the Covid-19 pandemic in California, including both case and mortality data as well as "mobility data" from Google.* 
 #' 
-#' Specifically, we'll be exploring the way disease counts and mobility have changed over the course of the pandemic, and the relationship between disease and mobility during the major outbreak in July 2020. 
+#' *Specifically, we'll be exploring the way disease counts and mobility have changed over the course of the pandemic, and the relationship between social distancing and disease at the county level during the major outbreak in July 2020.* 
 #' 
-#' Besides the `tidyverse` tools, we'll also be using the `covdata` package, a collection of Covid-related datasets created by sociologist Kieran Healy, and the `tidycensus` package for retrieving county-level population.  
+#' *Besides the `tidyverse` tools, we'll also be using the `covdata` package, a collection of Covid-related datasets created by sociologist Kieran Healy, and the `tidycensus` package for retrieving county-level population.*  
 #' 
 
 
@@ -25,17 +25,20 @@ library(covdata)
 ## testthat::test_dir('tests')
 ## (But leave it commented when you submit, otherwise it can cause an infinite loop)
 
-#' Because counties have different populations, we'll want to normalize cases and deaths.  Reporting per 100,000 and 1,000,000 residents are both pretty common.  We'll set this denominator here, so it's easy to change. 
+#' *Because counties have different populations, we'll want to normalize cases and deaths.  Reporting per 100,000 and 1,000,000 residents are both pretty common.  We'll set this denominator here, so it's easy to change.* 
+#' 
 
 per_pop = 1e6
 
-#' We'll also need county-level population statistics. This file gives 5-year estimates from the American Community Survey as of 2018.  I retrieved them using the `tidycensus` package on 2020-09-23. 
+#' *We'll also need county-level population statistics. This file gives 5-year estimates from the American Community Survey as of 2018.  I retrieved them using the `tidycensus` package on 2020-09-23.*
+#' 
+ 
 pop = read_csv(file.path('data', 'county_population.csv'))
 
 
 
 #' # Problem 1 #
-#' Take a few minutes to read about the provenance of the data we'll be using:
+#' *Take a few minutes to read about the provenance of the data we'll be using:*
 #' 
 #' - The `covdata` package itself: <https://kjhealy.github.io/covdata/>
 #' - *New York Times* county-level cumulative data: <https://kjhealy.github.io/covdata/articles/new-york-times.html>
@@ -54,9 +57,9 @@ pop = read_csv(file.path('data', 'county_population.csv'))
 
 
 #' # Problem 2 #
-#' The county-level Covid case and mortality data are in `nytcovcounty`. 
+#' *The county-level Covid case and mortality data are in `nytcovcounty`.* 
 data("nytcovcounty")
-#' Use tools such as `skimr::skim()` to answer the following questions.  Remember that, if you use any packages in the final script, you should (a) use a `library()` call at the top to load them and (b) list them in `DESCRIPTION` (remember the comma between items).
+#' *Use tools such as `skimr::skim()` to answer the following questions.  Remember that, if you use any packages in the final script, you should (a) use a `library()` call at the top to load them and (b) add them to the list in the `DESCRIPTION` file (remember the comma between items).*
 #' 
 
 #' 1. *How current are these data?* 
@@ -77,7 +80,7 @@ data("nytcovcounty")
 
 
 #' # Problem 3 #
-#' For our analysis, the `nytcovcounty` dataset needs three things: 
+#' *For our analysis, the `nytcovcounty` dataset needs three things:* 
 #' - Filtered down to California between April 1 and August 31, 2020
 #' - Daily changes in cases and deaths, rather than cumulative counts
 #' - Cases and deaths as rates per 1 million residents
@@ -136,7 +139,7 @@ focal_counties = c('Butte', 'Merced', 'Sacramento', 'Santa Clara')
 
 
 #' # Problem 5 #
-#' Now let's turn to the Google mobility data.  It's rather large.  
+#' *Now let's turn to the Google mobility data.  It's rather large.*  
 data("google_mobility")
 google_mobility
 
@@ -174,10 +177,44 @@ google_mobility
 #' 
 #' 
 
+#' 9. *What other potentially interesting patterns do you see in these mobility data?* 
+
+#' *(Just an aside.  Most presentations of Covid-19 data use 7-day rolling averages.  Either they don't show raw counts at all, or they emphasize the rolling averages rather than the raw counts.  In the `plots` folder, `chronicle.png` shows an example from the _San Francisco Chronicle_.  Because this lab is already super long and complicated, I decided to skip the rolling averages.  Two common packages for calculating rolling averages are (`zoo`)[https://cran.r-project.org/web/packages/zoo/index.html] and (`slider`)[https://cran.r-project.org/web/packages/slider/].)*
+#' 
+
 
 
 #' # Problem 6 #
-#' *[June mobility; July cases; join; scatterplot]*
+#' *Our specific interest in this data is the relationship between the relaxation of stay-at-home rules in June and the outbreak that peaked in July.  The standard narrative of the summer outbreak focuses on the kind of individual behavior measured by the Google Mobility data.  According to this narrative, individuals became more relaxed about staying at home and maintaining social distancing in June, and this caused an increase of cases starting 2-4 weeks later and peaking in July.  Media coverage focused especially on parks, as in this _San Francisco Chronicle_ story: <https://www.sfchronicle.com/bayarea/article/Bay-Area-residents-mostly-wear-masks-and-follow-15452707.php>*. 
+#' 
+#' *We'll investigate this by taking month-long averages for social distancing in June (as measured by the `parks` type in the mobility data) and Covid-19 cases and deaths in July, then drawing a scatterplot.*
+#' 
+
+#' 1. *This is just one way we could get at the relationship between stay-at-home in June and the peak of the outbreak in July.  What are some other approaches we might take?*
+#' 
+#' 
+#' 
+
+#' 2. *Construct a dataframe `parks_june` that reports the mean level of "parks" mobility for each county in June 2020.  Call the variable `parks`.  (Just so the automatic checks know where to look.)  Note that the Google data has a lot of gaps for the `parks` type.  Use the `na.rm = TRUE` argument in `mean()` to handle missing values, and then filter out missing values.  The final dataframe should have three columns: county name, FIPS code, and `parks`.  And it should have one row for each county in the mobility data for which we have an estimate for "parks".*
+#' 
+
+#' 3. *Construct a dataframe `cases_july` that reports the total level of new cases per 1 million residents of each county in July 2020.  (Don't worry about negative values.  I'm just asking you to do `sum(cases_per_pop)`.)  This dataframe should have three columns and one row for each county in the Covid-19 data.*
+#' 
+
+#' 4. *Combine `retail_june` with `cases_july` using an inner join and appropriate matching columns.  Assign the result to `summer_df`.  (Note that the automatic checks will be looking at the `county` column, derived from the Covid-19 data.)* 
+#' 
+
+#' 5. *Construct a scatterplot of July cases against June "parks."  The standard narrative suggests that there should be a positive correlation between these variables: as people spent more time at parks in June, this led to more cases in July.  Does the scatterplot support this?* 
+#' 
+#' 
+#' 
+
+
 
 #' # Problem 7 #
-#' *[how not to be contrarian about social distancing]*
+#' *Please answer these questions in the course Slack.*
+#' 
+#' *If you haven't done so yet, read Rex Douglass' blog post "How to be Curious Instead of Contrarian About COVID-19" (<https://rexdouglass.github.io/TIGR/Douglass_2020_How_To_Be_Curious_Instead_of_Contrarian_About_Covid19.nb.html>).  Douglass presents eight "lessons" for non-epidemiologists who are working with epidemiological data.  I assume you're not an epidemiologist.  If you are an epidemiologist, please pretend that you're not for the sake of this exercise.*
+#' 
+#' *Suppose you were exploring Covid data for fun in late July or early August 2020 (cf this blog post by Kieran Healy: <https://kieranhealy.org/blog/archives/2020/05/21/the-kitchen-counter-observatory/>), and that you found the pattern that we identified in Problem 6.  You're contemplating writing a blog post, op-ed, or even short research letter to share this finding.  How can Douglass' 8 lessons help us determine whether and how to share this finding?* 
+#' 
