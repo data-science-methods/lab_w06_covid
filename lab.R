@@ -141,9 +141,12 @@ focal_counties = c('Butte', 'Merced', 'Sacramento', 'Santa Clara')
 
 
 #' # Problem 5 #
-#' *Now let's turn to the Google mobility data.  It's rather large.*  
-data("google_mobility")
-google_mobility
+#' *Now let's turn to the Google mobility data.  The full version in `covdata` has nearly 15 million rows, and couldn't be loaded in RStudio Cloud when I was testing this lab.  (The memory cap for a free RStudio Cloud instance is 1 GB.)  So I've included a prefiltered version in the `data` folder.   
+#' 
+
+# data("google_mobility")
+# google_mobility
+mob_df = read_csv(file.path('data', 'mobility.csv'))
 
 #' 1. *How many distinct values of `type` are there?  What does this variable indicate?*  
 #' 
