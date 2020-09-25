@@ -91,6 +91,10 @@ data("nytcovcounty")
 #' 1. *Write a pipe that starts with `nytcovcounty` as input, filters down to California and April 1-August 31, 2020, and assigns the result to a variable `filtered_df`.  Hint: You can compare dates as though they were strings, e.g., `date <= '1980-05-17'` gives you dates on or before May 17, 1980.* 
 #' 
 
+filtered_df = nytcovcounty %>% 
+    filter(state == 'California', 
+           date >= '2020-04-01', date <= '2020-08-31')
+
 #' 2. To go from daily changes to cumulative counts, we'll use the following function. 
 
 daily_diff = function(x, order_var) {
@@ -101,17 +105,29 @@ daily_diff = function(x, order_var) {
 #' *Write a pipe that takes `filter_df` as input, groups the data by county and FIPS code, sorts the dataframe by date, and then converts the cumulative cases and death counts to daily changes using `daily_diff`.  (`date` is the order variable.)  Assign the result to `daily_df`. Hint: `mutate()` can replace the value of existing variables.* 
 #' 
 
+daily_df = filtered_df %>% 
+    group_by(county, fips) %>% 
+    arrange(date) %>%
+    mutate(cases = daily_diff(cases, date), 
+           deaths = daily_diff(deaths, date)) %>% 
+    ungroup()
+
 #' 3. *Finally we need to calculate rates per 1 million residents.  Write a pipe that takes `daily_diff` as input, joins it with the `pop` dataframe using appropriate variables, removes any rows with missing FIPS codes, and constructs the variables `cases_per_pop` and `deaths_per_pop`.  When constructing these variables, multiply by `per_pop` to get rates per 1 million residents.  Assign the result to `covid_df`, since this contains the Covid data for our analysis.*  
 #' 
 
-
+covid_df = daily_df %>% 
+    left_join(pop, by = c('county', 'state', 'fips')) %>% 
+    filter(!is.na(fips)) %>% 
+    mutate(cases_per_pop = cases / population * per_pop, 
+           deaths_per_pop = deaths / population * per_pop)
 
 #' # Problem 4 #
 #' 1. *To explore these time-series data visually, we'll want to use line plots of cases or deaths over time.  The line group needs the `group` aesthetic to determine which values should be treated as part of a single line.  Uncomment and fill in the blanks to plot cases per 1,000,000 residents over time for each county.*  
 #' 
 
-# ggplot(covid_df, aes(---, ---, group = ---)) +
-#     geom_line()
+ggplot(covid_df, aes(date, cases_per_pop, group = county)) +
+    geom_line() +
+    facet_wrap(vars(county))
 
 #' 2. *Because there are so many counties, the lines are heavily overplotted.  Modify your code from the last problem to facet by county.  Try both `scales = 'fixed'` and `scales = 'free_y'`.* 
 #' 
@@ -125,10 +141,11 @@ daily_diff = function(x, order_var) {
 
 focal_counties = c('Butte', 'Merced', 'Sacramento', 'Santa Clara')
 
-# --- %>% 
-#     filter(county %in% focal_counties) %>% 
-#     ggplot(aes(---------)) +
-#     -------
+covid_df %>%
+    filter(county %in% focal_counties) %>%
+    ggplot(aes(date, cases_per_pop, group = county)) +
+    geom_line() +
+    facet_wrap(vars(county), scales = 'free_y')
 
 #' Note that we need to use plus `+` to connect ggplot layers, not the pipe `%>%`. You can get weird errors if you accidentally use the wrong one.  I do this all the time. 
 #' 
