@@ -274,8 +274,8 @@ nrow(summer_df)
 #' 
 
 ggplot(summer_df, aes(parks, cases_per_pop)) +
-    # geom_point() +
     geom_label(aes(label = county)) +
+    geom_point() +
     geom_smooth(method = 'lm') +
     labs(x = '"Parks" in June', 
          y = 'Total new cases in July, per 1M residents') +
@@ -287,5 +287,5 @@ ggplot(summer_df, aes(parks, cases_per_pop)) +
 #' 
 #' *If you haven't done so yet, read Rex Douglass' blog post "How to be Curious Instead of Contrarian About COVID-19" (<https://rexdouglass.github.io/TIGR/Douglass_2020_How_To_Be_Curious_Instead_of_Contrarian_About_Covid19.nb.html>).  Douglass presents eight "lessons" for non-epidemiologists who are working with epidemiological data.  I assume you're not an epidemiologist.  If you are an epidemiologist, please pretend that you're not for the sake of this exercise.*
 #' 
-#' *Suppose you were exploring Covid data for fun in late July or early August 2020 (cf this blog post by Kieran Healy: <https://kieranhealy.org/blog/archives/2020/05/21/the-kitchen-counter-observatory/>), and that you found the pattern that we identified in Problem 6.  You're contemplating writing a blog post, op-ed, or even short research letter to share this finding.  How can Douglass' 8 lessons help us determine whether and how to share this finding?* 
+#' *Suppose you were exploring Covid data for fun in late July or early August 2020 (cf this blog post by Kieran Healy: <https://kieranhealy.org/blog/archives/2020/05/21/the-kitchen-counter-observatory/>), and that you found the pattern that we identified in Problem 6.  You're contemplating writing a blog post, op-ed, or even short research letter to share this finding.  How can Douglass' 8 lessons help us determine whether and how to share this finding?*
 #' 
