@@ -13,6 +13,8 @@
 #' 
 #' *Besides the `tidyverse` tools, we'll also be using the `covdata` package, a collection of Covid-related datasets created by sociologist Kieran Healy, and the `tidycensus` package for retrieving county-level population.*  
 #' 
+#' *This lab reproduces some of my own EDA of Covid-19 data from Summer 2020, in a more streamlined fashion.  Because it's still significantly longer and more complex than our other labs, I decided not to include much open-ended exploration.  As a result this might not feel very "exploratory," but it does do some other valuable things.  I encourage you to do spend a few hours exploring these data on your own, chasing after your own questions.*
+#' 
 
 
 ## Setup
