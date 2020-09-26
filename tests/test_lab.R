@@ -58,9 +58,9 @@ test_that("6.2. `parks_june` is not grouped", {
     expect_false(inherits(parks_june, 'grouped_df'))
 })
 test_that("6.2. Compare mean value of `parks` to a reference value", {
-    stay_at_home_reference = mean(df_6_2$parks, na.rm = TRUE)
-    expect_equivalent(mean(parks_june$stay_at_home, na.rm = TRUE), 
-                      stay_at_home_reference)
+    parks_reference = mean(df_6_2$parks, na.rm = TRUE)
+    expect_equivalent(mean(parks_june$parks, na.rm = TRUE), 
+                      parks_reference)
 })
 
 df_6_3 = df_3_3 %>% 
@@ -71,7 +71,7 @@ df_6_3 = df_3_3 %>%
 
 test_that("6.3. Dimensions of `cases_july`", {
     expect_equivalent(nrow(cases_july), 58L)
-    expect_equivalent(ncol(cases_july, 3L))
+    expect_equivalent(ncol(cases_july), 3L)
 })
 test_that("6.3. `cases_july` is not grouped", {
     expect_false(inherits(cases_july, 'grouped_df'))
