@@ -94,3 +94,4 @@ test_that("6.4. Compare `summer_df` FIPS codes to a reference list", {
 #     geom_point() +
 #     geom_smooth(method = 'lm')
 
+warning('Problem 7 answered on Slack')
