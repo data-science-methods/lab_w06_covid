@@ -236,14 +236,35 @@ ggsave(file.path('plots', 'mobility.png'), width = 4, height = 3, scale = 2)
 #' 
 #' 
 
-#' 2. *Construct a dataframe `parks_june` that reports the mean level of "parks" mobility for each county in June 2020.  Call the variable `parks`.  (Just so the automatic checks know where to look.)  Note that the Google data has a lot of gaps for the `parks` type.  Use the `na.rm = TRUE` argument in `mean()` to handle missing values, and then filter out missing values.  The final dataframe should have three columns: county name, FIPS code, and `parks`.  And it should have one row for each county in the mobility data for which we have an estimate for "parks".*
+#' 2. *Construct a dataframe `parks_june` that reports the mean level of "parks" mobility for each county in June 2020.  Call the variable `parks`.  (Just so the automatic checks know where to look.)  Note that the Google data has a lot of gaps for the `parks` type.  Use the `na.rm = TRUE` argument in `mean()` to handle counties with partially missing values, and then filter out the counties with completely missing values.  The final dataframe should have three columns: county name, FIPS code, and `parks`.  And it should have one row for each county in the mobility data for which we have at least one value for "parks" in June.*
 #' 
 
-#' 3. *Construct a dataframe `cases_july` that reports the total level of new cases per 1 million residents of each county in July 2020.  (Don't worry about negative values.  I'm just asking you to do `sum(cases_per_pop)`.)  This dataframe should have three columns and one row for each county in the Covid-19 data.*
+parks_june = mob_df %>% 
+    filter(date >= '2020-06-01', date <= '2020-06-30', 
+           type == 'parks') %>% 
+    group_by(county, fips) %>% 
+    summarize(parks = mean(pct_diff, na.rm = TRUE)) %>% 
+    ungroup() %>% 
+    filter(!is.na(parks))
+
+count(parks_june, county)
+count(parks_june, is.na(parks))
+
+#' 3. *Construct a dataframe `cases_july` that reports the total level of new cases per 1 million residents of each county in July 2020.  (Don't sweat any negative values.  I'm just asking you to do `sum(cases_per_pop)`.)  This dataframe should have three columns and one row for each county in the Covid-19 data.*
 #' 
+
+cases_july = covid_df %>% 
+    filter(date >= '2020-07-01', date <= '2020-07-31') %>% 
+    group_by(county, fips) %>% 
+    summarize(cases_per_pop = sum(cases_per_pop)) %>% 
+    ungroup()
+
+nrow(cases_july)
 
 #' 4. *Combine `parks_june` with `cases_july` using an inner join and appropriate matching columns.  Assign the result to `summer_df`.  (Note that the automatic checks will be looking at the `county` column.)* 
 #' 
+
+inner_join(parks, cases_july, by = c('county', 'fip))
 
 #' 5. *Construct a scatterplot of July cases against June "parks."  The standard narrative suggests that there should be a positive correlation between these variables: as people spent more time at parks in June, this led to more cases in July.  Does the scatterplot support this?* 
 #' 
