@@ -264,13 +264,22 @@ nrow(cases_july)
 #' 4. *Combine `parks_june` with `cases_july` using an inner join and appropriate matching columns.  Assign the result to `summer_df`.  (Note that the automatic checks will be looking at the `county` column.)* 
 #' 
 
-inner_join(parks, cases_july, by = c('county', 'fip))
+summer_df = inner_join(parks_june, cases_july, by = c('county', 'fips'))
+
+nrow(summer_df)
 
 #' 5. *Construct a scatterplot of July cases against June "parks."  The standard narrative suggests that there should be a positive correlation between these variables: as people spent more time at parks in June, this led to more cases in July.  Does the scatterplot support this?* 
 #' 
 #' 
 #' 
 
+ggplot(summer_df, aes(parks, cases_per_pop)) +
+    # geom_point() +
+    geom_label(aes(label = county)) +
+    geom_smooth(method = 'lm') +
+    labs(x = '"Parks" in June', 
+         y = 'Total new cases in July, per 1M residents') +
+    theme_bw()
 
 
 #' # Problem 7 #
