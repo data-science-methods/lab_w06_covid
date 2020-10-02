@@ -1,7 +1,7 @@
 #' ---
 #' title: "Data Science Methods, Lab for Week 06"
-#' author: "Your Name"
-#' email: Your Email
+#' author: "Chaohong Pan"
+#' email: cpan9 at ucmerced.edu
 #' output:
 #'   html_document:
 #'     toc: true
@@ -20,8 +20,9 @@
 library(tidyverse)
 ## `covdata` has to be installed from GitHub. Don't put it in `DESCRIPTION`.
 ## If you get errors on installation, see the file `covdata_install.md`. 
-# devtools::install_github('kjhealy/covdata')
+##devtools::install_github('kjhealy/covdata')
 library(covdata)
+library(skimr)
 
 ## To check your answers locally, run the following: 
 ## testthat::test_dir('tests')
@@ -48,12 +49,12 @@ pop = read_csv(file.path('data', 'county_population.csv'))
 #' 
 
 #' 1. *For the county-level cumulative data, are there any limitations or caveats that we should keep in mind for our analysis?* 
-#' 
+#' In cumulative data, each observeation could overlapp with one antoher since a county's later records contain its previous records.
 #' 
 #' 
 
 #' 2. *How about the Google Mobility data?* 
-#' 
+#' Google Mobility data is not a cumulative dataset because every single observation doesn't overlap one other. 
 #' 
 
 
@@ -65,17 +66,17 @@ data("nytcovcounty")
 #' 
 
 #' 1. *How current are these data?* 
-#' 
-#'  
+#' skim(nytcovcounty)
+#' The latest observation is on 2020-09-27. 
 #' 
 
 #' 2. *What is the `fips` variable?* 
-#' 
+#' "fips" is a unique ID for each county. 
 #' 
 #' 
 
 #' 3. *`cases` and `deaths` are nominally 100% complete.  Does this mean that we have case and death counts for every county over the entire time span of the data?*  
-#' 
+#' Not neccessarily. Some counties have zero reported confirmed cases and deaths. This data contains what it has, so we don't see any missing values. 
 #' 
 #' 
 
