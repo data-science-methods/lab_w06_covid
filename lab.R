@@ -90,7 +90,9 @@ data("nytcovcounty")
 #' 
 
 #' 1. *Write a pipe that starts with `nytcovcounty` as input, filters down to California and April 1-August 31, 2020, and assigns the result to a variable `filtered_df`.  Hint: You can compare dates as though they were strings, e.g., `date <= '1980-05-17'` gives you dates on or before May 17, 1980.* 
-#' 
+filtered_df= nytcovcounty %>% 
+    filter(date < '2020-08-31' & date >'2020-08-01') %>% 
+    filter(state=='California')
 
 #' 2. To go from daily changes to cumulative counts, we'll use the following function. 
 
@@ -100,10 +102,21 @@ daily_diff = function(x, order_var) {
 }
 
 #' *Write a pipe that takes `filter_df` as input, groups the data by county and FIPS code, sorts the dataframe by date, and then converts the cumulative cases and death counts to daily changes using `daily_diff`.  (`date` is the order variable.)  Assign the result to `daily_df`. Hint: `mutate()` can replace the value of existing variables.* 
-#' 
+daily_diff = filtered_df %>% 
+    group_by(county, fips) %>% 
+    arrange(date) %>% 
+    mutate(cases =daily_diff(cases, date)) %>% 
+    mutate(deaths = daily_diff(deaths,date)) %>% 
+    ungroup()
+# There are NAs for 2020-08-02 because 2020-08-02 is the first day in the dataset, so lag function doesn't suit it. 
 
 #' 3. *Finally we need to calculate rates per 1 million residents.  Write a pipe that takes `daily_diff` as input, joins it with the `pop` dataframe using appropriate variables, removes any rows with missing FIPS codes, and constructs the variables `cases_per_pop` and `deaths_per_pop`.  When constructing these variables, multiply by `per_pop` to get rates per 1 million residents.  Assign the result to `covid_df`, since this contains the Covid data for our analysis.*  
-#' 
+covid_df = full_join(daily_diff, pop) %>% 
+    drop_na(fips)
+    mutate(cases_per_pop = (cases/population)*1000000) %>% 
+    mutate(deaths_per_pop = (deaths/population)*1000000)
+    
+
 
 
 
