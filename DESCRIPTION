@@ -2,5 +2,6 @@ Imports:
     testthat,
     remotes,
     tidyverse,
-    skimr
+    skimr,
+    plotly
     

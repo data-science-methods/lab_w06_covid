@@ -23,9 +23,12 @@ library(tidyverse)
 ##devtools::install_github('kjhealy/covdata')
 library(covdata)
 library(skimr)
+library(plotly)
+#install.packages("assertthat")
+#install.packages("plotly")
 
 ## To check your answers locally, run the following: 
-## testthat::test_dir('tests')
+#testthat::test_dir('tests')
 ## (But leave it commented when you submit, otherwise it can cause an infinite loop)
 
 #' *Because counties have different populations, we'll want to normalize cases and deaths.  Reporting per 100,000 and 1,000,000 residents are both pretty common.  We'll set this denominator here, so it's easy to change.* 
@@ -112,7 +115,7 @@ daily_diff = filtered_df %>%
 
 #' 3. *Finally we need to calculate rates per 1 million residents.  Write a pipe that takes `daily_diff` as input, joins it with the `pop` dataframe using appropriate variables, removes any rows with missing FIPS codes, and constructs the variables `cases_per_pop` and `deaths_per_pop`.  When constructing these variables, multiply by `per_pop` to get rates per 1 million residents.  Assign the result to `covid_df`, since this contains the Covid data for our analysis.*  
 covid_df = full_join(daily_diff, pop) %>% 
-    drop_na(fips)
+    drop_na(fips) %>% 
     mutate(cases_per_pop = (cases/population)*1000000) %>% 
     mutate(deaths_per_pop = (deaths/population)*1000000)
     
@@ -124,33 +127,42 @@ covid_df = full_join(daily_diff, pop) %>%
 #' 1. *To explore these time-series data visually, we'll want to use line plots of cases or deaths over time.  The line group needs the `group` aesthetic to determine which values should be treated as part of a single line.  Uncomment and fill in the blanks to plot cases per 1,000,000 residents over time for each county.*  
 #' 
 
-# ggplot(covid_df, aes(---, ---, group = ---)) +
-#     geom_line()
+ggplot(covid_df, aes(date,cases_per_pop , group = county)) +
+    geom_line()
 
 #' 2. *Because there are so many counties, the lines are heavily overplotted.  Modify your code from the last problem to facet by county.  Try both `scales = 'fixed'` and `scales = 'free_y'`.* 
-#' 
+plot_free = ggplot(covid_df, aes(date,cases_per_pop , group = county)) +
+    geom_line()+
+    facet_wrap(~county, scales = "free_y")
+
+plot_fixed = ggplot(covid_df, aes(date,cases_per_pop , group = county)) +
+    geom_line()+
+    facet_wrap(~county, scales = "fixed")
 
 #' 3. *The plot indicates that, on a few days, some counties gain or lose thousands of cases per million residents.  What's up this that?  Hints:  `plotly::ggplotly()` to create an interactive version of the most recent plot.  Use `filter()` to narrow down the data to particular counties during short periods of time, and `View()` to peruse the data after filtering.*  
-#' 
-#' 
-#' 
+plotly::ggplotly(plot_fixed)
+covid_df %>% filter(county == 'Lassen')
+covid_df %>% filter(county == 'Merced')
+covid_df %>% filter(county == 'Monterey')
+
+# I noticed that Lassen, Merced, and Monterey (and some other counties) gain or lose thousands of cases per million residents on a few days. It reflects the variaion of new confirmed cases. 
+
+
 
 #' 4. *We can pass data through a pipe before calling `ggplot()`.  Let's focus on 4 counties of interest, two rural and two urban:  Butte, Merced, Sacramento, and Santa Clara.  Uncomment and fill in the blanks:* 
 
 focal_counties = c('Butte', 'Merced', 'Sacramento', 'Santa Clara')
 
-# --- %>% 
-#     filter(county %in% focal_counties) %>% 
-#     ggplot(aes(---------)) +
-#     -------
+ covid_df %>% 
+     filter(county %in% focal_counties) %>% 
+    ggplot(aes(date, cases_per_pop)) +
+     geom_line()
 
 #' Note that we need to use plus `+` to connect ggplot layers, not the pipe `%>%`. You can get weird errors if you accidentally use the wrong one.  I do this all the time. 
 #' 
 
 #' 5. *The common narrative of Covid-19 in California runs something like this:  "Despite being one of the locations where Covid-19 was detected early on, California mostly avoided the large outbreak that hit New York in the spring.  About a month after stay-at-home rules were relaxed in late May, cases began to increase in June, leading to a large outbreak across the state that peaked in July.  This outbreak has largely faded by September."  Based on your (brief) visual EDA of the data, does this narrative seem accurate? * 
-#' 
-#' 
-#' 
+#' This description is not accurate since there was a outbreak that peaked in Aug 10.
 
 #' *(Just an aside.  Most presentations of Covid-19 data use 7-day rolling averages.  Either they don't show raw counts at all, or they emphasize the rolling averages rather than the raw counts.  In the `plots` folder, `chronicle.png` shows an example from the _San Francisco Chronicle_.  Because this lab is already super long and complicated, I decided to skip the rolling averages.  Two common packages for calculating rolling averages are (`zoo`)[https://cran.r-project.org/web/packages/zoo/index.html] and (`slider`)[https://cran.r-project.org/web/packages/slider/].)*
 #' 
@@ -165,32 +177,44 @@ focal_counties = c('Butte', 'Merced', 'Sacramento', 'Santa Clara')
 # google_mobility
 mob_df = read_csv(file.path('data', 'mobility.csv'))
 
-#' 1. *How many distinct values of `type` are there?  What does this variable indicate?*  
-#' 
-#' 
-#' 
+#' 1. *How many distinct values of `type` are there?  What does this variable indicate?* 
+skim(mob_df)
+#' The data has 11 types. "Type" indicates the different locations.
 
 #' 2. *How about `pct_diff`?* 
-#' 
+#' Integer percent change from baseline activity.
 #' 
 #' 
 
 #' 3. *During our time period of interest, does `mob_df` contain mobility data for every county in California?  If some counties are missing data, which ones are they?  Hints: There are 58 counties in California.  Try counting and then filtering to identify counties with outlying row counts.*  
-#' 
-#' 
-#' 
+length(unique(mob_df$county))
+mob_df %>% 
+    filter(is.na(pct_diff)) %>% 
+    summarise(length(unique(county)))
+# No, CA has 58 counties but this dataset only has 56 counties. There are 28 counties with missing data. 
 
 #' 4. *In the `plots` folder, take a look at `mobility.png`.  Recreate this plot.  (Use whatever theme and colors that you like.  To create a horizontal line: `geom_hline(yintercept = 0, alpha = .5)`.  You don't need to save to disk.)* 
-#' 
+df_plot = mob_df %>% 
+    filter(county == "Butte"|
+               county == "Merced"|
+               county =="Sacramento"|
+               county == "Santa Clara") %>% 
+    filter(type =="parks"|
+               type =="residential"|
+               type == "retail")
+ggplot(df_plot, aes(date, pct_diff, color=type)) +
+    geom_line()+
+    facet_wrap(~county)+
+    geom_hline(yintercept = 0, alpha = .5)
 
 #' 5. *Again, the standard narrative of Covid-19 in California says that people were staying home in the spring, then going out more in May-June as stay-at-home orders were lifted.  Does this data support that narrative?*  
-#' 
+#' All panels except Butte partly support the narrative since the movements in retial seem increased from May to June. But the movements in retail are low all the time, which means people choose where to go out. Also, in all panels, the movements in residential remain stable and close to 0 through Apr to Sep. 
 #' 
 #' 
 
 #' 6. *What other potentially interesting patterns do you see in these mobility data?* 
 #' 
-#' 
+#' Merced, Sacramento, Stanta Clara display a similar pattern in terms of the variation of activity change in parks: less movements before June, most movements from Juen to July, and less movements after Aug. 
 
 
 
@@ -201,22 +225,36 @@ mob_df = read_csv(file.path('data', 'mobility.csv'))
 #' 
 
 #' 1. *This is just one way we could get at the relationship between stay-at-home in June and the peak of the outbreak in July.  What are some other approaches we might take?*
-#' 
+#' We can also investigate the relationship between mobility data for other places (i.e. retial) and the number of cases. 
 #' 
 #' 
 
 #' 2. *Construct a dataframe `parks_june` that reports the mean level of "parks" mobility for each county in June 2020.  Call the variable `parks`.  (Just so the automatic checks know where to look.)  Note that the Google data has a lot of gaps for the `parks` type.  Use the `na.rm = TRUE` argument in `mean()` to handle missing values, and then filter out missing values.  The final dataframe should have three columns: county name, FIPS code, and `parks`.  And it should have one row for each county in the mobility data for which we have an estimate for "parks".*
-#' 
+parks_june = mob_df %>% 
+    filter(type == "parks") %>% 
+    filter(date >= '2020-06-1' & date <= '2020-06-30') %>% 
+    group_by(county, fips) %>% 
+    summarise(parks=mean(pct_diff, na.rm=TRUE)) %>% 
+    filter(!is.na(parks))
+    
+    
 
 #' 3. *Construct a dataframe `cases_july` that reports the total level of new cases per 1 million residents of each county in July 2020.  (Don't worry about negative values.  I'm just asking you to do `sum(cases_per_pop)`.)  This dataframe should have three columns and one row for each county in the Covid-19 data.*
-#' 
+cases_july =  full_join(nytcovcounty, pop) %>% 
+    filter(date >= '2020-07-01' & date <= '2020-07-30') %>% 
+    mutate(cases_per_pop = (cases/population)*1000000) %>% 
+    group_by(county, fips) %>% 
+    summarise(cases_per_pop=mean(cases_per_pop, na.rm=TRUE)) %>% 
+    filter(!is.na(cases_per_pop))
 
 #' 4. *Combine `parks_june` with `cases_july` using an inner join and appropriate matching columns.  Assign the result to `summer_df`.  (Note that the automatic checks will be looking at the `county` column.)* 
-#' 
+summer_df = inner_join(parks_june, cases_july)
+
 
 #' 5. *Construct a scatterplot of July cases against June "parks."  The standard narrative suggests that there should be a positive correlation between these variables: as people spent more time at parks in June, this led to more cases in July.  Does the scatterplot support this?* 
-#' 
-#' 
+ggplot(summer_df, aes(parks,cases_per_pop)) +
+    geom_point()
+#' No. The plot shows that parks is negative correlated with cases_per_pop. Probably because parks are outdoor areas so people can keep a social distance.
 #' 
 
 
