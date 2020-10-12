@@ -80,8 +80,9 @@ data("nytcovcounty")
 
 #' 3. *`cases` and `deaths` are nominally 100% complete.  Does this mean that we have case and death counts for every county over the entire time span of the data?*  
 #' Not neccessarily. Some counties have zero reported confirmed cases and deaths. This data contains what it has, so we don't see any missing values. 
-#' 
-#' 
+#' length(unique(nytcovcounty$county)) There are 1924 unique counties.
+#' nrow(nytcovcounty) There are 576582 nrows
+#' There are some unknown counties in the column, so we don't have the case and death count for "every" county. 
 
 
 
@@ -94,7 +95,7 @@ data("nytcovcounty")
 
 #' 1. *Write a pipe that starts with `nytcovcounty` as input, filters down to California and April 1-August 31, 2020, and assigns the result to a variable `filtered_df`.  Hint: You can compare dates as though they were strings, e.g., `date <= '1980-05-17'` gives you dates on or before May 17, 1980.* 
 filtered_df= nytcovcounty %>% 
-    filter(date < '2020-08-31' & date >'2020-08-01') %>% 
+    filter(date <= '2020-08-31' & date >='2020-08-01') %>% 
     filter(state=='California')
 
 #' 2. To go from daily changes to cumulative counts, we'll use the following function. 
@@ -116,8 +117,8 @@ daily_diff = filtered_df %>%
 #' 3. *Finally we need to calculate rates per 1 million residents.  Write a pipe that takes `daily_diff` as input, joins it with the `pop` dataframe using appropriate variables, removes any rows with missing FIPS codes, and constructs the variables `cases_per_pop` and `deaths_per_pop`.  When constructing these variables, multiply by `per_pop` to get rates per 1 million residents.  Assign the result to `covid_df`, since this contains the Covid data for our analysis.*  
 covid_df = full_join(daily_diff, pop) %>% 
     drop_na(fips) %>% 
-    mutate(cases_per_pop = (cases/population)*1000000) %>% 
-    mutate(deaths_per_pop = (deaths/population)*1000000)
+    mutate(cases_per_pop = (cases/population)*per_pop) %>% 
+    mutate(deaths_per_pop = (deaths/population)*per_pop)
     
 
 
@@ -145,7 +146,7 @@ covid_df %>% filter(county == 'Lassen')
 covid_df %>% filter(county == 'Merced')
 covid_df %>% filter(county == 'Monterey')
 
-# I noticed that Lassen, Merced, and Monterey (and some other counties) gain or lose thousands of cases per million residents on a few days. It reflects the variaion of new confirmed cases. 
+# I noticed that Lassen, Merced, and Monterey (and some other counties) gain or lose thousands of cases per million residents on a few days. It reflects the variaion of new confirmed cases. The reason could be that this counties don't have a perfect communication system to report their cases. 
 
 
 
@@ -162,7 +163,7 @@ focal_counties = c('Butte', 'Merced', 'Sacramento', 'Santa Clara')
 #' 
 
 #' 5. *The common narrative of Covid-19 in California runs something like this:  "Despite being one of the locations where Covid-19 was detected early on, California mostly avoided the large outbreak that hit New York in the spring.  About a month after stay-at-home rules were relaxed in late May, cases began to increase in June, leading to a large outbreak across the state that peaked in July.  This outbreak has largely faded by September."  Based on your (brief) visual EDA of the data, does this narrative seem accurate? * 
-#' This description is not accurate since there was a outbreak that peaked in Aug 10.
+#' Based on the plot, cases peaked on Aug 10 and Aug 17 and the line was gradually flatterned. But since we only have the data for Aug so we are not sure if there is another outbreak in Sep. 
 
 #' *(Just an aside.  Most presentations of Covid-19 data use 7-day rolling averages.  Either they don't show raw counts at all, or they emphasize the rolling averages rather than the raw counts.  In the `plots` folder, `chronicle.png` shows an example from the _San Francisco Chronicle_.  Because this lab is already super long and complicated, I decided to skip the rolling averages.  Two common packages for calculating rolling averages are (`zoo`)[https://cran.r-project.org/web/packages/zoo/index.html] and (`slider`)[https://cran.r-project.org/web/packages/slider/].)*
 #' 
@@ -194,6 +195,7 @@ mob_df %>%
 # No, CA has 58 counties but this dataset only has 56 counties. There are 28 counties with missing data. 
 
 #' 4. *In the `plots` folder, take a look at `mobility.png`.  Recreate this plot.  (Use whatever theme and colors that you like.  To create a horizontal line: `geom_hline(yintercept = 0, alpha = .5)`.  You don't need to save to disk.)* 
+
 df_plot = mob_df %>% 
     filter(county == "Butte"|
                county == "Merced"|
@@ -207,8 +209,16 @@ ggplot(df_plot, aes(date, pct_diff, color=type)) +
     facet_wrap(~county)+
     geom_hline(yintercept = 0, alpha = .5)
 
+df_plot = mob_df %>% 
+    county %in% c("Butte", "Merced", "Sacramento", "Santa Clara") %>% 
+    type %in% c("parks", "residential", "retail")
+ggplot(df_plot, aes(date, pct_diff, color=type)) +
+    geom_line()+
+    facet_wrap(~county)+
+    geom_hline(yintercept = 0, alpha = .5)
+
 #' 5. *Again, the standard narrative of Covid-19 in California says that people were staying home in the spring, then going out more in May-June as stay-at-home orders were lifted.  Does this data support that narrative?*  
-#' All panels except Butte partly support the narrative since the movements in retial seem increased from May to June. But the movements in retail are low all the time, which means people choose where to go out. Also, in all panels, the movements in residential remain stable and close to 0 through Apr to Sep. 
+#'The narrative is supported. The movements in retail are low all the time. Also, the movement increased in May-June, which means people intionally choose where to go out. Also, in all panels, the movements in residential remain stable and close to 0 through Apr to Sep. 
 #' 
 #' 
 
