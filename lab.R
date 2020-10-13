@@ -140,7 +140,7 @@ cases_plot = cases_plot + facet_wrap(vars(county), scales = 'free_y')
 plotly::ggplotly()
 
 kings_covid = filter(covid_df, county == 'Kings', date >= '2020-08-01' & date <= '2020-08-31')
-View(kings_covid)
+# View(kings_covid)
 #' 
 #' I think it's because the population is smaller (for example, Kings County has a population of 150,075) so when we use cases_per_pop, the numbers are scaled up quite a bit, making it look like lots of cases were gained or lost when, in reality, the changes aren't as drastic.
 #' 
