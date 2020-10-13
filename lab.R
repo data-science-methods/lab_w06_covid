@@ -129,7 +129,7 @@ covid_df = daily_df %>%
 #' 
 
 ggplot(covid_df, aes(date, cases_per_pop, group = county)) +
-    geom_line() +
+    geom_line()
 
 #' 2. *Because there are so many counties, the lines are heavily overplotted.  Modify your code from the last problem to facet by county.  Try both `scales = 'fixed'` and `scales = 'free_y'`.* 
 #' 
@@ -258,7 +258,7 @@ parks_june = mob_df %>%
   date>='2020-06-01',
   date<='2020-06-30') %>%
   group_by(county, fips) %>% 
-  summarize(parks=mean(pct_diff, rm.na =TRUE)) %>% 
+  summarize(parks=mean(pct_diff, na.rm = TRUE)) %>% 
   ungroup() %>% 
   filter(!is.na(parks))
 
@@ -270,7 +270,7 @@ cases_july = covid_df %>%
          date<='2020-07-30') %>%
   group_by(county, fips) %>% 
   summarize(cases_per_pop=sum(cases_per_pop)) %>% 
-  ungroup() %>% 
+  ungroup()
 
 
 #' 4. *Combine `parks_june` with `cases_july` using an inner join and appropriate matching columns.  Assign the result to `summer_df`.  (Note that the automatic checks will be looking at the `county` column.)* 
@@ -285,7 +285,7 @@ summer_df = parks_june %>%
 #' Not really, but I also think that this analysisdoesnt disprove this because this analysis is only relevant to that narrative if we are assuming that disease spread is a lag model where a big spike in traffic shoiuld crrolate with a lagged but proportionally big spike in cases. However since its a cirus with exponential growth I dont think thats really an appropriate model. 
 #' 
 
-ggplot(summer_df,aes(cases_per_pop,parks))+
+ggplot(summer_df,aes(cases_per_pop,parks)) +
   geom_point()
 
 #' # Problem 7 #
