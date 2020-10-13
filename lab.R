@@ -95,7 +95,7 @@ data("nytcovcounty")
 
 #' 1. *Write a pipe that starts with `nytcovcounty` as input, filters down to California and April 1-August 31, 2020, and assigns the result to a variable `filtered_df`.  Hint: You can compare dates as though they were strings, e.g., `date <= '1980-05-17'` gives you dates on or before May 17, 1980.* 
 filtered_df= nytcovcounty %>% 
-    filter(date <= '2020-08-31' & date >='2020-08-01') %>% 
+    filter(date <= '2020-8-31' & date >='2020-04-01') %>% 
     filter(state=='California')
 
 #' 2. To go from daily changes to cumulative counts, we'll use the following function. 
@@ -163,7 +163,7 @@ focal_counties = c('Butte', 'Merced', 'Sacramento', 'Santa Clara')
 #' 
 
 #' 5. *The common narrative of Covid-19 in California runs something like this:  "Despite being one of the locations where Covid-19 was detected early on, California mostly avoided the large outbreak that hit New York in the spring.  About a month after stay-at-home rules were relaxed in late May, cases began to increase in June, leading to a large outbreak across the state that peaked in July.  This outbreak has largely faded by September."  Based on your (brief) visual EDA of the data, does this narrative seem accurate? * 
-#' Based on the plot, cases peaked on Aug 10 and Aug 17 and the line was gradually flatterned. But since we only have the data for Aug so we are not sure if there is another outbreak in Sep. 
+#' Based on the plot, cases peaked on Aug 10 and Aug 17 and the line was gradually flatterned. But since we don't have the data for Sep so we are not sure if there is another outbreak in Sep. 
 
 #' *(Just an aside.  Most presentations of Covid-19 data use 7-day rolling averages.  Either they don't show raw counts at all, or they emphasize the rolling averages rather than the raw counts.  In the `plots` folder, `chronicle.png` shows an example from the _San Francisco Chronicle_.  Because this lab is already super long and complicated, I decided to skip the rolling averages.  Two common packages for calculating rolling averages are (`zoo`)[https://cran.r-project.org/web/packages/zoo/index.html] and (`slider`)[https://cran.r-project.org/web/packages/slider/].)*
 #' 
