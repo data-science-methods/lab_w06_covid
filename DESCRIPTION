@@ -1,5 +1,9 @@
 Imports:
     testthat,
     remotes,
-    tidyverse
+    tidyverse,
+    covdata,
+    skimr,
+    plotly
+    
     
