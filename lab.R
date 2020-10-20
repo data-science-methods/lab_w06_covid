@@ -20,11 +20,14 @@
 library(tidyverse)
 ## `covdata` has to be installed from GitHub. Don't put it in `DESCRIPTION`.
 ## If you get errors on installation, see the file `covdata_install.md`. 
-devtools::install_github('kjhealy/covdata')
+## devtools::install_github('kjhealy/covdata')
 library(covdata)
-library(dplyr)
+library(plotly)
 ##install.packages("skimr")
-##library(skimr)
+library(skimr)
+library(ggthemes)
+library(lubridate)
+
 
 ## To check your answers locally, run the following: 
 ## testthat::test_dir('tests')
@@ -63,11 +66,10 @@ pop = read_csv(file.path('data', 'county_population.csv'))
 
 #' # Problem 2 #
 #' *The county-level Covid case and mortality data are in `nytcovcounty`.* 
-data("nytcovcounty")
-data("nytcovcounty")
+
 #' *Use tools such as `skimr::skim()` to answer the following questions.  Remember that, if you use any packages in the final script, you should (a) use a `library()` call at the top to load them and (b) add them to the list in the `DESCRIPTION` file (remember the comma between items).*
 #' 
-skimr::skim(nytcovcounty)
+
 nytcovcounty
 skim(nytcovcounty)
 #' 1. *How current are these data?* 
@@ -107,50 +109,83 @@ daily_diff = function(x, date) {
     diff = x - lag(x, order_by = date)
     return(diff)
 }
-daily_diff()
+
 #' *Write a pipe that takes `filter_df` as input, groups the data by county and FIPS code, sorts the dataframe by date, and then converts the cumulative cases and death counts to daily changes using `daily_diff`.  (`date` is the order variable.)  Assign the result to `daily_df`. Hint: `mutate()` can replace the value of existing variables.* 
 #' 
-daily_df = filtered_df%>%
-  group_by(county, fips)%>%
-  arrange(filtered_df$date)%>%
+daily_df = filtered_df %>%
+  group_by(county, fips) %>%
+  arrange(date) %>%
+  mutate(deaths = daily_diff(deaths, date),
+         cases = daily_diff(cases, date))
+
+
+
+##view(daily_df)
+
   
-  
-daily_df
 #' 3. *Finally we need to calculate rates per 1 million residents.  Write a pipe that takes `daily_diff` as input, joins it with the `pop` dataframe using appropriate variables, removes any rows with missing FIPS codes, and constructs the variables `cases_per_pop` and `deaths_per_pop`.  When constructing these variables, multiply by `per_pop` to get rates per 1 million residents.  Assign the result to `covid_df`, since this contains the Covid data for our analysis.*  
 #' 
+#' 
+#'
+covid_df = daily_df %>%
+  full_join(pop, by = c('state', 'county', 'fips')) %>%
+  drop_na(fips) %>% 
+  mutate(cases_per_pop = cases/population*1000000, death_per_pop = deaths/population*1000000)
+ 
+##covid_df %>% ungroup() %>% distinct(county, fips)
 
+## drop_na gets rid of any NA rows for specified column(s), if none specified, all columns
+  
+## is.na tells if something is missing
 
 
 #' # Problem 4 #
 #' 1. *To explore these time-series data visually, we'll want to use line plots of cases or deaths over time.  The line group needs the `group` aesthetic to determine which values should be treated as part of a single line.  Uncomment and fill in the blanks to plot cases per 1,000,000 residents over time for each county.*  
 #' 
 
-# ggplot(covid_df, aes(---, ---, group = ---)) +
-#     geom_line()
+ggplot(covid_df, aes(date, cases_per_pop, group = county)) +
+  geom_line()
+  
+
 
 #' 2. *Because there are so many counties, the lines are heavily overplotted.  Modify your code from the last problem to facet by county.  Try both `scales = 'fixed'` and `scales = 'free_y'`.* 
 #' 
+ggplot(covid_df, aes(date, cases_per_pop, group = county)) +
+  geom_line() + 
+  facet_wrap(vars(county), scales = 'free_y')
+
+  
 
 #' 3. *The plot indicates that, on a few days, some counties gain or lose thousands of cases per million residents.  What's up this that?  Hints:  `plotly::ggplotly()` to create an interactive version of the most recent plot.  Use `filter()` to narrow down the data to particular counties during short periods of time, and `View()` to peruse the data after filtering.*  
 #' 
+#' Smaller populations multiplied by a million would show a large spike in cases compared to larger populations.
 #' 
-#' 
+covid_df %>% 
+  filter(county %in% c('Marin', 'Kings', 'Colusa', 'Kern', 'Imperial', 'Tulare')) %>% 
+  ggplot(aes(date, cases_per_pop)) +
+  geom_line()  
+  plotly::ggplotly()
 
 #' 4. *We can pass data through a pipe before calling `ggplot()`.  Let's focus on 4 counties of interest, two rural and two urban:  Butte, Merced, Sacramento, and Santa Clara.  Uncomment and fill in the blanks:* 
 
 focal_counties = c('Butte', 'Merced', 'Sacramento', 'Santa Clara')
 
-# --- %>% 
-#     filter(county %in% focal_counties) %>% 
-#     ggplot(aes(---------)) +
-#     -------
+##%in% matching operator, acts similar to an 'OR', or sequence of 'ORs'
+
+
+covid_df %>%
+  filter(county %in% focal_counties) %>%
+  ggplot(aes(date, cases_per_pop, color = county)) +
+  geom_line() +
+  scale_color_colorblind()
+  
 
 #' Note that we need to use plus `+` to connect ggplot layers, not the pipe `%>%`. You can get weird errors if you accidentally use the wrong one.  I do this all the time. 
 #' 
 
 #' 5. *The common narrative of Covid-19 in California runs something like this:  "Despite being one of the locations where Covid-19 was detected early on, California mostly avoided the large outbreak that hit New York in the spring.  About a month after stay-at-home rules were relaxed in late May, cases began to increase in June, leading to a large outbreak across the state that peaked in July.  This outbreak has largely faded by September."  Based on your (brief) visual EDA of the data, does this narrative seem accurate? * 
 #' 
-#' 
+#' It seems reasonably accurate. The cases in September definintely decrease compared to the earlier months, however they do diminish as much as April or May.
 #' 
 
 #' *(Just an aside.  Most presentations of Covid-19 data use 7-day rolling averages.  Either they don't show raw counts at all, or they emphasize the rolling averages rather than the raw counts.  In the `plots` folder, `chronicle.png` shows an example from the _San Francisco Chronicle_.  Because this lab is already super long and complicated, I decided to skip the rolling averages.  Two common packages for calculating rolling averages are (`zoo`)[https://cran.r-project.org/web/packages/zoo/index.html] and (`slider`)[https://cran.r-project.org/web/packages/slider/].)*
@@ -165,33 +200,59 @@ focal_counties = c('Butte', 'Merced', 'Sacramento', 'Santa Clara')
 # data("google_mobility")
 # google_mobility
 mob_df = read_csv(file.path('data', 'mobility.csv'))
+mob_df
+skim(mob_df)
+mob_df %>% 
+  distinct(type) %>% 
+  nrow()
 
 #' 1. *How many distinct values of `type` are there?  What does this variable indicate?*  
-#' 
+#' 6, different locations
 #' 
 #' 
 
 #' 2. *How about `pct_diff`?* 
-#' 
-#' 
-#' 
+mob_df %>% 
+  distinct(pct_diff) %>% 
+  nrow()
+#' 328
+#' integer percent change from baseline activity
 
 #' 3. *During our time period of interest, does `mob_df` contain mobility data for every county in California?  If some counties are missing data, which ones are they?  Hints: There are 58 counties in California.  Try counting and then filtering to identify counties with outlying row counts.*  
+
+covid_df %>%
+  ungroup() %>% 
+  anti_join(mob_df, by = 'county') %>% 
+  distinct(county) 
+
+
+
+  #group_by(county) %>% 
+  #summarise(count = n())
 #' 
-#' 
-#' 
+#' Alpine and Sierra
 
 #' 4. *In the `plots` folder, take a look at `mobility.png`.  Recreate this plot.  (Use whatever theme and colors that you like.  To create a horizontal line: `geom_hline(yintercept = 0, alpha = .5)`.  You don't need to save to disk.)* 
-#' 
+
+focal_type = c('parks', 'residential', 'retail')
+mob_df %>% 
+  filter(county %in% focal_counties & type %in% focal_type) %>% 
+  ggplot(aes(date, pct_diff, color = type)) +
+  geom_line() +
+  facet_wrap(vars(county)) +
+  geom_hline(yintercept = 0) +
+  theme_bw()
+  
+  
 
 #' 5. *Again, the standard narrative of Covid-19 in California says that people were staying home in the spring, then going out more in May-June as stay-at-home orders were lifted.  Does this data support that narrative?*  
 #' 
-#' 
+#' yes, they began going out more in the summer after june.
 #' 
 
 #' 6. *What other potentially interesting patterns do you see in these mobility data?* 
 #' 
-#' 
+#' Retail is the lowest which means people were not going out to shop but rather to just be outside and/or socialize. 
 
 
 
@@ -203,24 +264,44 @@ mob_df = read_csv(file.path('data', 'mobility.csv'))
 
 #' 1. *This is just one way we could get at the relationship between stay-at-home in June and the peak of the outbreak in July.  What are some other approaches we might take?*
 #' 
-#' 
+#' you could use other types such as transit. transit would have less distancing than parks. I don't think parks is the best b/c people could still practice 6ft+ social distance 
 #' 
 
 #' 2. *Construct a dataframe `parks_june` that reports the mean level of "parks" mobility for each county in June 2020.  Call the variable `parks`.  (Just so the automatic checks know where to look.)  Note that the Google data has a lot of gaps for the `parks` type.  Use the `na.rm = TRUE` argument in `mean()` to handle missing values, and then filter out missing values.  The final dataframe should have three columns: county name, FIPS code, and `parks`.  And it should have one row for each county in the mobility data for which we have an estimate for "parks".*
-#' 
 
+#parks_june = mob_df %>% 
+  #filter(type == 'parks', month(date) == 6) %>% 
+  #group_by(county) %>% 
+  #summarise(pct_diff = mean(pct_diff, na.rm = TRUE)) %>% 
+  #drop_na(pct_diff)
+
+parks_june = mob_df %>% 
+  filter(type == 'parks', month(date) == 6) %>% 
+  group_by(county, fips) %>% 
+  summarise(pct_diff = mean(pct_diff, na.rm = TRUE)) %>% 
+  drop_na(pct_diff)
+  ##unsure how to find mean of parks? or how to turn pct_diff into parks var in the dataframe.
+parks_june
 #' 3. *Construct a dataframe `cases_july` that reports the total level of new cases per 1 million residents of each county in July 2020.  (Don't worry about negative values.  I'm just asking you to do `sum(cases_per_pop)`.)  This dataframe should have three columns and one row for each county in the Covid-19 data.*
-#' 
+
+
+cases_july = covid_df %>% 
+  filter(month(date) == 7) %>% 
+  summarise(cases_per_pop = sum(cases_per_pop))
 
 #' 4. *Combine `parks_june` with `cases_july` using an inner join and appropriate matching columns.  Assign the result to `summer_df`.  (Note that the automatic checks will be looking at the `county` column.)* 
-#' 
 
+summer_df = parks_june %>% 
+  inner_join(cases_july, by = c('county'))
+  
 #' 5. *Construct a scatterplot of July cases against June "parks."  The standard narrative suggests that there should be a positive correlation between these variables: as people spent more time at parks in June, this led to more cases in July.  Does the scatterplot support this?* 
 #' 
 #' 
 #' 
-
-
+summer_df %>% 
+  ggplot(aes(cases_per_pop, pct_diff)) +
+  geom_point()
+#' According to my possibly wrong scatterplot, its seems like the more people went to parks (higher pct_diff) the less cases, and more cases with less pct_diff. A negative correlation which  does not support the narrative.
 
 #' # Problem 7 #
 #' *Please answer these questions in the course Slack.*
