@@ -1,5 +1,5 @@
 #' ---
-#' title: "Data Science Methods, Lab for Week 06"
+#' title: "Data Science Methods, Lab for Week 08"
 #' author: "Your Name"
 #' email: Your Email
 #' output:
@@ -9,44 +9,74 @@
 
 #' *In this lab, we'll be exploring county-level data on the Covid-19 pandemic in California, including both case and mortality data as well as "mobility data" from Google.* 
 #' 
-#' *Specifically, we'll be exploring the way disease counts and mobility have changed over the course of the pandemic, and the relationship between social distancing and disease at the county level during the major outbreak in July 2020.* 
-#' 
-#' *Besides the `tidyverse` tools, we'll also be using the `covdata` package, a collection of Covid-related datasets created by sociologist Kieran Healy, and the `tidycensus` package for retrieving county-level population.*  
+#' *Specifically, we'll be exploring the relationship between case counts and mobility in the context of the Summer 2020 wave.* 
 #' 
 #' *This lab reproduces some of my own EDA of Covid-19 data from Summer 2020, in a more streamlined fashion.  Because it's still significantly longer and more complex than our other labs, I decided not to include much open-ended exploration.  As a result this might not feel very "exploratory," but it does do some other valuable things.  I encourage you to do spend a few hours exploring these data on your own, chasing after your own questions.*
 #' 
 
+#' # Reflexivity #
+#' *Before starting the lab, spend 3 minutes writing a response to each reflexivity question.  Use a timer.  Answer these questions off the top of your head: don't worry about consulting or citing outside sources or about getting the answers "right" or "wrong."* 
+#' 1. *What do I already know about this subject?*
+#' 2. *Why am I studying this?*
+#' 3. *What do I expect or hope to find/learn, and why?*
+#' 4. *Who is affected by this topic, and how am I connected to them?* 
+#' 
 
-## Setup
+
+## Setup ----
 ## **IMPORTANT**: Add all dependencies to `DESCRIPTION`
+## Note:  I'm copying the relevant setup from class.  `covid_df` includes both the new cases/deaths per day as well as the rates per 100,000 residents. 
 library(tidyverse)
-## `covdata` has to be installed from GitHub. Don't put it in `DESCRIPTION`.
-## If you get errors on installation, see the file `covdata_install.md`. 
-# devtools::install_github('kjhealy/covdata')
-library(covdata)
+library(tidylog)
+library(skimr)
+library(visdat)
 
-## To check your answers locally, run the following: 
-## testthat::test_dir('tests')
-## (But leave it commented when you submit, otherwise it can cause an infinite loop)
+library(assertthat)
 
-#' *Because counties have different populations, we'll want to normalize cases and deaths.  Reporting per 100,000 and 1,000,000 residents are both pretty common.  We'll set this denominator here, so it's easy to change.* 
-#' 
+theme_set(theme_bw())
 
-per_pop = 1e6
+daily_new = function(x, order_var) {
+    diff = x - dplyr::lag(x, order_by = order_var)
+    return(diff)
+}
 
-#' *We'll also need county-level population statistics. This file gives 5-year estimates from the American Community Survey as of 2018.  I retrieved them using the `tidycensus` package on 2020-09-23.*
-#' 
- 
-pop = read_csv(file.path('data', 'county_population.csv'))
+pop_df = read_csv(file.path('data', 'county_population.csv'))
 
+covid_file = file.path('data', 'counties.csv')
+covid_url = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv'
+if (!file.exists(covid_file)) {
+    download.file(covid_url, covid_file)
+}
+covid_df = read_csv(covid_file) |> 
+    filter(state == 'California', county != 'Unknown') |> 
+    group_by(county) |>
+    mutate(across(.cols = c(cases, deaths),
+                  .fns = list(new = daily_new), date)) |> 
+    ungroup() |> 
+    inner_join(pop_df,
+                   by = c('state', 'county', 'fips')) |>
+    mutate(across(.cols = c(cases, deaths, cases_new, deaths_new),
+                  .fns = list(rate = ~ .x/population * 100000)))
+
+mob_df = read_csv(file.path('data', 'mobility.csv'))
+
+## Data validation ----
+dataf |> 
+    group_by(county) |> 
+    slice(-1) |> 
+    pull(cases_new) |> 
+    is.na() |> 
+    any() |> 
+    magrittr::not() |> 
+    assert_that(msg = 'missing values in cases_new')
 
 
 #' # Problem 1 #
+#  problem 1 ----
 #' *Take a few minutes to read about the provenance of the data we'll be using:*
 #' 
-#' - The `covdata` package itself: <https://kjhealy.github.io/covdata/>
-#' - *New York Times* county-level cumulative data: <https://kjhealy.github.io/covdata/articles/new-york-times.html>
-#' - Mobility data from Google:  <https://kjhealy.github.io/covdata/articles/mobility-data.html#google-s-mobility-reports>
+#' - *New York Times* county-level cumulative data: <https://github.com/nytimes/covid-19-data/blob/master/README.md>
+#' - Mobility data from Google:  <https://kjhealy.github.io/covmobility/reference/google_mobility.html>
 #' 
 
 #' 1. *For the county-level cumulative data, are there any limitations or caveats that we should keep in mind for our analysis?* 
@@ -59,100 +89,11 @@ pop = read_csv(file.path('data', 'county_population.csv'))
 #' 
 
 
-
 #' # Problem 2 #
-#' *The county-level Covid case and mortality data are in `nytcovcounty`.* 
-data("nytcovcounty")
-#' *Use tools such as `skimr::skim()` to answer the following questions.  Remember that, if you use any packages in the final script, you should (a) use a `library()` call at the top to load them and (b) add them to the list in the `DESCRIPTION` file (remember the comma between items).*
+#  problem 2 ----
+#' *We spent some time in class looking at the Covid case data, and combining it with the county populations to get rates per 100,000 residents.  So here we'll start with the Google Mobility data.*
 #' 
-
-#' 1. *How current are these data?* 
-#' 
-#'  
-#' 
-
-#' 2. *What is the `fips` variable?* 
-#' 
-#' 
-#' 
-
-#' 3. *`cases` and `deaths` are nominally 100% complete.  Does this mean that we have case and death counts for every county over the entire time span of the data?*  
-#' 
-#' 
-#' 
-
-
-
-#' # Problem 3 #
-#' *For our analysis, the `nytcovcounty` dataset needs three things:* 
-#' - Filtered down to California between April 1 and August 31, 2020
-#' - Daily changes in cases and deaths, rather than cumulative counts
-#' - Cases and deaths as rates per 1 million residents
-#' 
-
-#' 1. *Write a pipe that starts with `nytcovcounty` as input, filters down to California and April 1-August 31, 2020, and assigns the result to a variable `filtered_df`.  Hint: You can compare dates as though they were strings, e.g., `date <= '1980-05-17'` gives you dates on or before May 17, 1980.* 
-#' 
-
-#' 2. To go from daily changes to cumulative counts, we'll use the following function. 
-
-daily_diff = function(x, order_var) {
-    diff = x - lag(x, order_by = order_var)
-    return(diff)
-}
-
-#' *Write a pipe that takes `filter_df` as input, groups the data by county and FIPS code, sorts the dataframe by date, and then converts the cumulative cases and death counts to daily changes using `daily_diff`.  (`date` is the order variable.)  Assign the result to `daily_df`. Hint: `mutate()` can replace the value of existing variables.* 
-#' 
-
-#' 3. *Finally we need to calculate rates per 1 million residents.  Write a pipe that takes `daily_diff` as input, joins it with the `pop` dataframe using appropriate variables, removes any rows with missing FIPS codes, and constructs the variables `cases_per_pop` and `deaths_per_pop`.  When constructing these variables, multiply by `per_pop` to get rates per 1 million residents.  Assign the result to `covid_df`, since this contains the Covid data for our analysis.*  
-#' 
-
-
-
-#' # Problem 4 #
-#' 1. *To explore these time-series data visually, we'll want to use line plots of cases or deaths over time.  The line group needs the `group` aesthetic to determine which values should be treated as part of a single line.  Uncomment and fill in the blanks to plot cases per 1,000,000 residents over time for each county.*  
-#' 
-
-# ggplot(covid_df, aes(---, ---, group = ---)) +
-#     geom_line()
-
-#' 2. *Because there are so many counties, the lines are heavily overplotted.  Modify your code from the last problem to facet by county.  Try both `scales = 'fixed'` and `scales = 'free_y'`.* 
-#' 
-
-#' 3. *The plot indicates that, on a few days, some counties gain or lose thousands of cases per million residents.  What's up this that?  Hints:  `plotly::ggplotly()` to create an interactive version of the most recent plot.  Use `filter()` to narrow down the data to particular counties during short periods of time, and `View()` to peruse the data after filtering.*  
-#' 
-#' 
-#' 
-
-#' 4. *We can pass data through a pipe before calling `ggplot()`.  Let's focus on 4 counties of interest, two rural and two urban:  Butte, Merced, Sacramento, and Santa Clara.  Uncomment and fill in the blanks:* 
-
-focal_counties = c('Butte', 'Merced', 'Sacramento', 'Santa Clara')
-
-# --- %>% 
-#     filter(county %in% focal_counties) %>% 
-#     ggplot(aes(---------)) +
-#     -------
-
-#' Note that we need to use plus `+` to connect ggplot layers, not the pipe `%>%`. You can get weird errors if you accidentally use the wrong one.  I do this all the time. 
-#' 
-
-#' 5. *The common narrative of Covid-19 in California runs something like this:  "Despite being one of the locations where Covid-19 was detected early on, California mostly avoided the large outbreak that hit New York in the spring.  About a month after stay-at-home rules were relaxed in late May, cases began to increase in June, leading to a large outbreak across the state that peaked in July.  This outbreak has largely faded by September."  Based on your (brief) visual EDA of the data, does this narrative seem accurate? * 
-#' 
-#' 
-#' 
-
-#' *(Just an aside.  Most presentations of Covid-19 data use 7-day rolling averages.  Either they don't show raw counts at all, or they emphasize the rolling averages rather than the raw counts.  In the `plots` folder, `chronicle.png` shows an example from the _San Francisco Chronicle_.  Because this lab is already super long and complicated, I decided to skip the rolling averages.  Two common packages for calculating rolling averages are (`zoo`)[https://cran.r-project.org/web/packages/zoo/index.html] and (`slider`)[https://cran.r-project.org/web/packages/slider/].)*
-#' 
-
-
-
-#' # Problem 5 #
-#' *Now let's turn to the Google mobility data.  The full version in `covdata` has nearly 15 million rows, and couldn't be loaded in RStudio Cloud when I was testing this lab.  (The memory cap for a free RStudio Cloud instance is 1 GB.)  So I've included a prefiltered version in the `data` folder: only counties in California, between April 1 and August 31, 2020.*   
-#' 
-
-# data("google_mobility")
-# google_mobility
-mob_df = read_csv(file.path('data', 'mobility.csv'))
-
+#' *The original dataset is huge.  The full version is very large, so I've included a prefiltered version in `data` that's limited to California.  It's already been loaded above as `mob_df`.*  
 #' 1. *How many distinct values of `type` are there?  What does this variable indicate?*  
 #' 
 #' 
@@ -171,21 +112,24 @@ mob_df = read_csv(file.path('data', 'mobility.csv'))
 #' 4. *In the `plots` folder, take a look at `mobility.png`.  Recreate this plot.  (Use whatever theme and colors that you like.  To create a horizontal line: `geom_hline(yintercept = 0, alpha = .5)`.  You don't need to save to disk.)* 
 #' 
 
-#' 5. *Again, the standard narrative of Covid-19 in California says that people were staying home in the spring, then going out more in May-June as stay-at-home orders were lifted.  Does this data support that narrative?*  
-#' 
-#' 
-#' 
+#' 5. *Again, the standard narrative of Covid-19 in California says that people were staying home in the spring, then going out more in May-June as stay-at-home orders were lifted.  Do this data support that narrative?*
+#'   
+#'   
+#'   
 
 #' 6. *What other potentially interesting patterns do you see in these mobility data?* 
 #' 
 #' 
+#' 
 
 
-
-#' # Problem 6 #
+#' Problem 3
+# problem 3 ----
 #' *Our specific interest in this data is the relationship between the relaxation of stay-at-home rules in June and the outbreak that peaked in July.  The standard narrative of the summer outbreak focuses on the kind of individual behavior measured by the Google Mobility data.  According to this narrative, individuals became more relaxed about staying at home and maintaining social distancing in June, and this caused an increase of cases starting 2-4 weeks later and peaking in July.  Media coverage focused especially on parks, as in this _San Francisco Chronicle_ story: <https://www.sfchronicle.com/bayarea/article/Bay-Area-residents-mostly-wear-masks-and-follow-15452707.php>*. 
 #' 
 #' *We'll investigate this by taking month-long averages for social distancing in June (as measured by the `parks` type in the mobility data) and Covid-19 cases and deaths in July, then drawing a scatterplot.*
+#' 
+#' *(Just an aside.  Most presentations of Covid-19 data use 7-day rolling averages.  Either they don't show raw counts at all, or they emphasize the rolling averages rather than the raw counts.  In the `plots` folder, `chronicle.png` shows an example from the _San Francisco Chronicle_.  Because this lab is already super long and complicated, I decided to skip the rolling averages.  Two common packages for calculating rolling averages are (`zoo`)[https://cran.r-project.org/web/packages/zoo/index.html] and (`slider`)[https://cran.r-project.org/web/packages/slider/].)*
 #' 
 
 #' 1. *This is just one way we could get at the relationship between stay-at-home in June and the peak of the outbreak in July.  What are some other approaches we might take?*
@@ -193,7 +137,14 @@ mob_df = read_csv(file.path('data', 'mobility.csv'))
 #' 
 #' 
 
-#' 2. *Construct a dataframe `parks_june` that reports the mean level of "parks" mobility for each county in June 2020.  Call the variable `parks`.  (Just so the automatic checks know where to look.)  Note that the Google data has a lot of gaps for the `parks` type.  Use the `na.rm = TRUE` argument in `mean()` to handle missing values, and then filter out missing values.  The final dataframe should have three columns: county name, FIPS code, and `parks`.  And it should have one row for each county in the mobility data for which we have an estimate for "parks".*
+#' 2. *Construct a dataframe `parks_june` that reports the mean level of "parks" mobility for each county in June 2020.  Call the variable `parks`.  (Just so the automatic checks know where to look.)*
+#' 
+#' *Hints:*
+#' 
+#' - You can compare dates as though they were strings, e.g., `date <= '1980-05-17'` gives you dates on or before May 17, 1980.*
+#' - Use the `na.rm = TRUE` argument in `mean()` to handle missing values.
+#' - The final dataframe should have three columns: county name, FIPS code, and `parks`.  
+#' - And it should have one row for each county in the mobility data for which we have an estimate for "parks".*
 #' 
 
 #' 3. *Construct a dataframe `cases_july` that reports the total level of new cases per 1 million residents of each county in July 2020.  (Don't worry about negative values.  I'm just asking you to do `sum(cases_per_pop)`.)  This dataframe should have three columns and one row for each county in the Covid-19 data.*
@@ -209,10 +160,13 @@ mob_df = read_csv(file.path('data', 'mobility.csv'))
 
 
 
-#' # Problem 7 #
-#' *Please answer these questions in the course Slack.*
+#' # Problem 4 #
+#  problem 4 ----
+#' *We'll be discussing this part in class.*
 #' 
 #' *If you haven't done so yet, read Rex Douglass' blog post "How to be Curious Instead of Contrarian About COVID-19" (<https://rexdouglass.github.io/TIGR/Douglass_2020_How_To_Be_Curious_Instead_of_Contrarian_About_Covid19.nb.html>).  Douglass presents eight "lessons" for non-epidemiologists who are working with epidemiological data.  I assume you're not an epidemiologist.  If you are an epidemiologist, please pretend that you're not for the sake of this exercise.*
 #' 
-#' *Suppose you were exploring Covid data for fun in late July or early August 2020 (cf this blog post by Kieran Healy: <https://kieranhealy.org/blog/archives/2020/05/21/the-kitchen-counter-observatory/>), and that you found the pattern that we identified in Problem 6.  You're contemplating writing a blog post, op-ed, or even short research letter to share this finding.  How can Douglass' 8 lessons help us determine whether and how to share this finding?* 
+#' *Suppose you were exploring Covid data for fun in late July or early August 2020 (cf this blog post by Kieran Healy: <https://kieranhealy.org/blog/archives/2020/05/21/the-kitchen-counter-observatory/>), and that you found the pattern that we identified in Problem 3.  You're contemplating writing a blog post, op-ed, or even short research letter to share this finding.  How can Douglass' 8 lessons help us determine whether and how to share this finding?* 
+#' 
+#' 
 #' 

@@ -1,5 +1,8 @@
 Imports:
     testthat,
-    remotes,
-    tidyverse
+    tidyverse,
+    tidylog,
+    skimr,
+    visdat,
+    assertthat
     
