@@ -23,5 +23,5 @@ covid_df = read_csv(covid_file) |>
     left_join(pop_df, by = c('fips', 'state', 'county')) |> 
     left_join(mob_df, by = c('fips', 'state', 'date'))
 
-write_rds(covid_df, here('data', 'combined.csv'))
+write_csv(covid_df, here('data', 'covid.csv'))
 
