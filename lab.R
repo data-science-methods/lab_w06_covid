@@ -160,7 +160,7 @@ df_santaclara <- filter(mob_df, sub_region_2 == 'Santa Clara County')
 
 group_by(mob_df, type)
 
-df_butte2 <- group_by(mob_df, type)
+df_butte2 <- group_by(df_butte, type)
 
 df_butte3 <- filter(df_butte2, type %in% c('parks', 'residential', 'retail'))
 
