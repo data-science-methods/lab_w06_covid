@@ -278,12 +278,26 @@ parks_june3 <- parks_june4[c('parks', 'fips', 'county')]
 parks_june <- parks_june3
 
 
- 
-
-
 #' 3. *Construct a dataframe `cases_july` that reports the total level of new cases per 1 million residents of each county in July 2020.  (Don't worry about negative values.  *
 #' *I'm just asking you to do `sum(cases_per_pop)`.)  This dataframe should have three columns and one row for each county in the Covid-19 data.*
 #' 
+
+
+
+cases_july9 <- filter(covid_df, date >= '2020-07-01')
+cases_july8 <- filter(cases_july9, date <= '2020-07-30')  
+cases_july7 <- group_by(cases_july8, county)
+cases_july6 <- cases_july7
+cases_july5 <- (summarize(cases_july6, variablesum = sum(cases_new, na.rm = TRUE)))
+cases_july4 <- (summarize(cases_july6, variablepop = sum(population, na.rm = TRUE)))
+cases_july3 <- inner_join(cases_july5, cases_july4, by = "county")
+cases_july2 <- mutate(cases_july3, new_cases_per_mil = ((variablesum/variablepop)*1000000))
+cases_july1 <- cases_july6[c('county','fips')]
+cases_july0 <- distinct(cases_july1)
+
+cases_july0 <- inner_Join(cases_july2, cases_july1)
+
+cases_july <- cases_july2[c('county', 'new_cases_per_mil', 'fips')]
 
 #' 4. *Combine `parks_june` with `cases_july` using an inner join and appropriate matching columns.  Assign the result to `summer_df`.  *
 #' *(Note that the automatic checks will be looking at the `county` column.)* 
@@ -362,3 +376,18 @@ parks_june <- parks_june3
 
 #(remove al except rows with given value in columns)
 #df_new <- filter(df_santaclara2, type %in% c('parks', 'residential', 'retail'))
+
+
+#cases_july3 <- list(cases_july5, cases_july4) %/% bind_rows(.id = "county")
+
+
+
+
+#cases_july6 <- mutate(cases_july7, cases_over_pop = sum())
+
+
+
+#cases_july5 <- rename(cases_july6, county = sub_region_2)
+#cases_july4 <- rename(cases_july5, fips = census_fips_code)
+#cases_july3 <- parks_june4[c('parks', 'fips', 'county')]
+
