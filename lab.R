@@ -265,21 +265,20 @@ finalplot
 #' - And it should have one row for each county in the mobility data for which we have an estimate for "parks".*
 #' 
 
-parks_june <- 
-    
-     <- filter(mob_df, sub_region_2 == 'Santa Clara County')
+###AV step by step filtering, renaming, etc.
 
- <- group_by(df_sacramento, type)
+parks_june9 <- filter(mob_df, date >= '2020-06-01')
+parks_june8 <- filter(parks_june9, date <= '2020-06-30')  
+parks_june7 <- group_by(parks_june8, sub_region_2)
+parks_june6 <- mutate(parks_june7, parks = mean(pct_diff, na.rm=TRUE))
+parks_june5 <- rename(parks_june6, county = sub_region_2)
+parks_june4 <- rename(parks_june5, fips = census_fips_code)
+parks_june3 <- parks_june4[c('parks', 'fips', 'county')]
 
- <- filter(df_santaclara2, type %in% c('parks', 'residential', 'retail'))
+parks_june <- parks_june3
 
- <- setDT(df_santaclara3)[between(date, '2020-03-25', '2020-09-05', incbounds=FALSE)]
 
-###AV   PLOTS FOR EACH COUNTY
-
-plot_butte <- ggplot(data = df_butte4, mapping = aes(x = date, y = pct_diff, group = type)) +
-    geom_line(aes(color=type)) +
-    geom_hline(yintercept = 0, alpha = .5)
+ 
 
 
 #' 3. *Construct a dataframe `cases_july` that reports the total level of new cases per 1 million residents of each county in July 2020.  (Don't worry about negative values.  *
@@ -358,3 +357,8 @@ plot_butte <- ggplot(data = df_butte4, mapping = aes(x = date, y = pct_diff, gro
 #    geom_hline(yintercept = 0, alpha = .5) +
 #    geom_line(aes(y = parks), color = "red") + 
 #    geom_line(aes(y = residential), color="green", linetype="twodash") 
+
+# groupeddf<- group_by(df_sacramento, type)
+
+#(remove al except rows with given value in columns)
+#df_new <- filter(df_santaclara2, type %in% c('parks', 'residential', 'retail'))
