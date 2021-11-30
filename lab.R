@@ -143,15 +143,6 @@ skim(mob_df)
 #'    *To create a horizontal line: `geom_hline(yintercept = 0, alpha = .5)`.  You don't need to save to disk.)* 
 #' Well, I thought I did well till I realized that I have to sort through dates. Life is hard.
 
-# df_bmss <- filter(mob_df, cut == 'Merced County', 'Butte County', 'Sacramento County', 'Santa Clara County')
-
-#regionsUsed <- c('Merced County', 'Butte County', 'Sacramento County', 'Santa Clara County')
-#df_bmss <- filter(mob_df, sub_region_2 %in% regionsUsed)
-
-#ggplot(data = df_bmss, mapping = aes(x = date, y = pct_diff)) +
-  #  geom_point() +
-  #  geom_line(color = "blue")
-
 ###AV create seperate df for each county, will combine plots later
     
 df_butte <- filter(mob_df, sub_region_2 == 'Butte County') 
@@ -181,6 +172,15 @@ df_butte4 <- setDT(df_butte3)[between(date, '2020-03-25', '2020-09-05', incbound
 #  geom_line(color = variable)
 
 #summarize(df_butte2)
+
+# df_bmss <- filter(mob_df, cut == 'Merced County', 'Butte County', 'Sacramento County', 'Santa Clara County')
+
+#regionsUsed <- c('Merced County', 'Butte County', 'Sacramento County', 'Santa Clara County')
+#df_bmss <- filter(mob_df, sub_region_2 %in% regionsUsed)
+
+#ggplot(data = df_bmss, mapping = aes(x = date, y = pct_diff)) +
+#  geom_point() +
+#  geom_line(color = "blue")
 
 
 ggplot(data = df_butte4, mapping = aes(x = date, y = pct_diff, group = type)) +
