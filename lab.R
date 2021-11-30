@@ -108,7 +108,7 @@ dataf |>
 #' *The original dataset is huge.  The full version is very large, so I've included a prefiltered version in `data` that's limited to California.  It's already been loaded above as `mob_df`.*  
 #' 1. *How many distinct values of `type` are there?  What does this variable indicate?*  
 #' 
-#' residential, workplace, retail, grocery, parks, and transit. it indicates the following, "
+#' *residential, workplace, retail, grocery, parks, and transit*. it indicates the following, "
 #' The data shows how visitors to (or time spent in) categorized places change compared to our 
 #' baseline days. A baseline day represents a normal value for that day of the week. The baseline 
 #' day is the median value from the 5‑week period Jan 3 – Feb 6, 2020."-Google
@@ -171,13 +171,13 @@ ggplot(data = df_butte2, mapping = aes(x = date, y = pct_diff)) +
   geom_point() +
   geom_line(color = variable)
 
+summarize(df_butte2)
 
-ggplot(data = df_butte, mapping = aes(x = date, y = pct_diff, color = type)) 
-geom_line(color = type)
+ggplot(data = df_butte2, mapping = aes(x = date, y = pct_diff, group = type)) +
+geom_line(aes(linetype=type, color=type)) +
+    geom_point()
 
-df_butte %/%
-    ggplot(aes(date, pct_diff)) + 
-    geom_line(color = "blue")
+
 ###AV the data is in the wrong format for me to be able to use this bit, they need ot be seperate y axies, but that isnt what I have done. I will check.
 ggplot(data = df_butte, mapping = aes(x = date, y = pct_diff)) +
     geom_hline(yintercept = 0, alpha = .5) +
