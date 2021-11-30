@@ -172,7 +172,7 @@ df_sacramento4 <- setDT(df_sacramento3)[between(date, '2020-03-25', '2020-09-05'
 
 df_santaclara <- filter(mob_df, sub_region_2 == 'Santa Clara County')
 
-df_santaclara2 <- group_by(df_sacramento, type)
+df_santaclara2 <- group_by(df_santaclara, type)
 
 df_santaclara3 <- filter(df_santaclara2, type %in% c('parks', 'residential', 'retail'))
 
@@ -267,13 +267,13 @@ finalplot
 
 parks_june <- 
     
-    f_santaclara <- filter(mob_df, sub_region_2 == 'Santa Clara County')
+     <- filter(mob_df, sub_region_2 == 'Santa Clara County')
 
-df_santaclara2 <- group_by(df_sacramento, type)
+ <- group_by(df_sacramento, type)
 
-df_santaclara3 <- filter(df_santaclara2, type %in% c('parks', 'residential', 'retail'))
+ <- filter(df_santaclara2, type %in% c('parks', 'residential', 'retail'))
 
-df_santaclara4 <- setDT(df_santaclara3)[between(date, '2020-03-25', '2020-09-05', incbounds=FALSE)]
+ <- setDT(df_santaclara3)[between(date, '2020-03-25', '2020-09-05', incbounds=FALSE)]
 
 ###AV   PLOTS FOR EACH COUNTY
 
