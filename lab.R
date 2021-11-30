@@ -162,6 +162,7 @@ group_by(mob_df, type)
 
 df_butte2 <- group_by(mob_df, type)
 
+df_butte3 <- filter(df_butte2, type %in% c('parks', 'residential', 'retail'))
 
 ###AV create plots per county (I know this isn't efficient and will not be the same, however I think it may be more instructive for me to go this route than with a 
 ###AV facet wrap that I don't quite get yet)
@@ -173,7 +174,7 @@ ggplot(data = df_butte2, mapping = aes(x = date, y = pct_diff)) +
 
 summarize(df_butte2)
 
-ggplot(data = df_butte2, mapping = aes(x = date, y = pct_diff, group = type)) +
+ggplot(data = df_butte3, mapping = aes(x = date, y = pct_diff, group = type)) +
 geom_line(aes(linetype=type, color=type)) +
     geom_point()
 
