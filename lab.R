@@ -150,7 +150,7 @@ skim(mob_df)
 
 ###AV create seperate df for each county, will combine plots later
     
-df_butte <- filter(mob_df, sub_region_2 == 'Butte County')
+df_butte <- filter(mob_df, sub_region_2 == 'Butte County') 
 
 df_merced <- filter(mob_df, sub_region_2 == 'Merced County')
 
@@ -158,13 +158,18 @@ df_sacramento <- filter(mob_df, sub_region_2 == 'Sacramento County')
 
 df_santaclara <- filter(mob_df, sub_region_2 == 'Santa Clara County')
 
+group_by(mob_df, type)
+
+df_butte2 <- group_by(mob_df, type)
+
+
 ###AV create plots per county (I know this isn't efficient and will not be the same, however I think it may be more instructive for me to go this route than with a 
 ###AV facet wrap that I don't quite get yet)
 
-ggplot(data = df_butte, mapping = aes(x = date, y = pct_diff)) +
+ggplot(data = df_butte2, mapping = aes(x = date, y = pct_diff)) +
   geom_hline(yintercept = 0, alpha = .5) +
   geom_point() +
-  geom_line(color = "blue")
+  geom_line(color = variable)
 
 
 ggplot(data = df_butte, mapping = aes(x = date, y = pct_diff, color = type)) 
@@ -173,7 +178,7 @@ geom_line(color = type)
 df_butte %/%
     ggplot(aes(date, pct_diff)) + 
     geom_line(color = "blue")
-
+###AV the data is in the wrong format for me to be able to use this bit, they need ot be seperate y axies, but that isnt what I have done. I will check.
 ggplot(data = df_butte, mapping = aes(x = date, y = pct_diff)) +
     geom_hline(yintercept = 0, alpha = .5) +
     geom_line(aes(y = parks), color = "red") + 
