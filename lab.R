@@ -101,6 +101,8 @@ dataf |>
 #' 
 
 
+
+
 #' # Problem 2 #
 #  problem 2 ----
 #' *We spent some time in class looking at the Covid case data, and combining it with the county populations to get rates per 100,000 residents.  So here we'll start with the Google Mobility data.*
@@ -230,6 +232,8 @@ finalplot
 #' 
 
 
+
+
 #' Problem 3
 # problem 3 ----
 #' *Our specific interest in this data is the relationship between the relaxation of stay-at-home rules in June and the outbreak that peaked in July.  *
@@ -274,8 +278,8 @@ parks_june6 <- mutate(parks_june7, parks = mean(pct_diff, na.rm=TRUE))
 parks_june5 <- rename(parks_june6, county = sub_region_2)
 parks_june4 <- rename(parks_june5, fips = census_fips_code)
 parks_june3 <- parks_june4[c('parks', 'fips', 'county')]
-
-parks_june <- parks_june3
+parks_june2 <- distinct(parks_june3)
+parks_june  <- parks_june2
 
 
 #' 3. *Construct a dataframe `cases_july` that reports the total level of new cases per 1 million residents of each county in July 2020.  (Don't worry about negative values.  *
@@ -294,20 +298,45 @@ cases_july3 <- inner_join(cases_july5, cases_july4, by = "county")
 cases_july2 <- mutate(cases_july3, new_cases_per_mil = ((variablesum/variablepop)*1000000))
 cases_july1 <- cases_july6[c('county','fips')]
 cases_july0 <- distinct(cases_july1)
-
-cases_july0 <- inner_Join(cases_july2, cases_july1)
-
-cases_july <- cases_july2[c('county', 'new_cases_per_mil', 'fips')]
+cases_julya <- inner_join(cases_july0, cases_july2, by = "county")
+cases_july  <- cases_julya[c('county', 'new_cases_per_mil', 'fips')]
 
 #' 4. *Combine `parks_june` with `cases_july` using an inner join and appropriate matching columns.  Assign the result to `summer_df`.  *
 #' *(Note that the automatic checks will be looking at the `county` column.)* 
 #' 
+#' 
+###AV note, parks_june had 57 variables before including NA, and the joining removed NA and left us with 56, the removal was due to google not providing that data
+
+summer_df9 <- inner_join(cases_july, parks_june, by = 'fips')
+summer_df8 <- rename(summer_df9, county = county.x)
+summer_df7 <- summer_df8[c('county', 'fips', 'new_cases_per_mil', 'parks')]
+summer_df <- summer_df7
+
 
 #' 5. *Construct a scatterplot of July cases against June "parks."  The standard narrative suggests that there should be a positive correlation *
 #' *between these variables: as people spent more time at parks in June, this led to more cases in July.  Does the scatterplot support this?* 
 #' 
-#' 
-#' 
+
+otherfinalplot <- ggplot(data = summer_df, mapping = aes(x = new_cases_per_mil, y = parks)) +
+    geom_point()
+
+otherfinalplot
+
+skim(summer_df)
+
+###AV this bottom part is stolen from your site under the visual eda section, i didnt write this part at all
+statsidk <- summer_df %>% 
+    summarize(n = n(), 
+              across(.cols = c(new_cases_per_mil, parks), 
+                     .fns = lst(mean, sd)), 
+              cor_xy = cor(new_cases_per_mil, parks), 
+              p_value = cor.test(new_cases_per_mil, parks)$p.value)
+
+statsidk
+
+#' ###AV *The plot supports nothing, nor does the cursory stats analysis.*
+
+
 
 
 
@@ -318,7 +347,7 @@ cases_july <- cases_july2[c('county', 'new_cases_per_mil', 'fips')]
 #' *If you haven't done so yet, read Rex Douglass' blog post "How to be Curious Instead of Contrarian About COVID-19" *
 #' *(<https://rexdouglass.github.io/TIGR/Douglass_2020_How_To_Be_Curious_Instead_of_Contrarian_About_Covid19.nb.html>).  *
 #' *Douglass presents eight "lessons" for non-epidemiologists who are working with epidemiological data.  I assume you're not an epidemiologist.  *
-#' *If you are an epidemiologist, please pretend that you're not for the sake of this exercise.*
+#' *If you are an epidemiologist, please pretend that you're not for the sake of this exercise.* Lol
 #' 
 #' *Suppose you were exploring Covid data for fun in late July or early August 2020 (cf this blog post by Kieran Healy: *
 #' *<https://kieranhealy.org/blog/archives/2020/05/21/the-kitchen-counter-observatory/>), and that you found the pattern that we identified in Problem 3.  *
@@ -326,8 +355,44 @@ cases_july <- cases_july2[c('county', 'new_cases_per_mil', 'fips')]
 #' *whether and how to share this finding?* 
 #' 
 #' 
+#' In the beginning of the pandemic I knew it would get bad on account of the consensus from other nations. By late December 2019, in some southeast Asian nations like Korea and Japan,
+#' travelers were fully masked when on international flights, and China of course already demonstrated a rapid and somewhat unchecked spread was on the horizon.
+#' When I got off my flight, my fellow passengers didn't seem to know what to do, everyone from the flight was masked, everyone at SFO wasn't.
 #' 
+#' As the disease progressed I saw the absurd commentary noting that it would die down after a while, in a bell curve sort of manner. I saw the absurdity of our response.
+#' Given this context, and 
+#' given the blatant misrepresentation of the facts, the lies originating from seemingly everyone with a voice, it would seem prudent to publish in such a manner that 
+#' makes the findings irreducible without context. Ought the paper be published? Yes. However one must take the precautions that someone like Richard A. Epstein may take 
+#' one's findings and misconstrue them. The paper should be clear and unambiguous in its scope and ought to take preventative measure against its co-opting. Measures that do not
+#' obfuscate the findings but rather ensure that their clarity remains unaltered by propagandist outlets like the Hoover Institution at Stanford. Now I will not outline 
+#' any measures here, however it is clear to me that as a matter of principle one ought not lend their name to ideas or assertions that they are not willing to defend and own.
+#' If I were to write an article including these findings, I would note that the data I sourced this from is trash, that the data shows literally nothing on this front, and that 
+#' to call this data inconclusive would be an understatement. 
 #' 
+#' The data says nothing, and to an extent that ought to be said. Given the many confounding variables involved, (including the notion that
+#' aggregate google data isn't liable to capture any relevant information, and perhaps how being coughed on in the face outdoors by someone with the omega variant is 
+#' strikingly similar to being coughed on in the face by someone with the omega variant indoors regardless of this sort of finding) one may be better suited writing a paper on the 
+#' inadequacy of Covid tracing and reporting in the US. To be honest I am not entirely clear on why google released this data like this. 
+#' 
+#' I suppose that a preemptive article could be
+#' warranted to ensure that a intellectually or otherwise morally deficient Hooverite does not get the advantage of being first to publish this. 
+#'
+#' The Douglass article, above all else, serves as a vignette of a morally or capacity deficient pseudo-intellectual (albeit one with real-world credentials), and how they go 
+#' about bullshitting a captive audience. While  I take the recommendations of Douglass  for granted, this article reminds me that persons like Epstein exist and are liable 
+#' to co-opt any research that one may produce, with little consequence to themselves.
+#' These people will undoubtedly continue to fabricate articles serving their own purposes, and one must therefore go about frustrating and otherwise vociferously demonstrating that
+#' they are disapointingly and pathetically wrong. To that end, I believe that one ought to publish the data, the limitations, and one must decisively preempt co-option. The 
+#' medium article used by Epstein to diminish the perception of covid's legality and spread is pro-stay at home and its thesis is quite opposed to Epstein.
+#' 
+#' *To summarize, be clear about what the data says, recognize that people will misconstrue everything, mitigate against co-option, and know that one's very identity can be used *
+#' *against the findings, thereby damaging the discourse regardless of the correctness of the findings themselves.* As for the medium article, the author actually did a good job at
+#' mitigation, he remained active and defended the work as it was, while acting against those who would have kept things open to the detriment of many human lives.
+#' https://www.youtube.com/watch?v=C98FmoZVbjs.It goes without saying that the work by Douglass is fantastic, and one ought to strive for that sort of clarity in ones work.
+#' 
+#' The video is worth a watch. Hindsight is 20/20, however the calls for herd immunity were especially jarring, even then.
+
+
+
 
 
 
