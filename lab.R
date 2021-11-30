@@ -135,9 +135,13 @@ skim(mob_df)
 
 
 
+
+
+
+
 #' 4. *In the `plots` folder, take a look at `mobility.png`.  Recreate this plot.  (Use whatever theme and colors that you like. *
 #'    *To create a horizontal line: `geom_hline(yintercept = 0, alpha = .5)`.  You don't need to save to disk.)* 
-#' 
+#' Well, I thought I did well till I realized that I have to sort through dates. Life is hard.
 
 # df_bmss <- filter(mob_df, cut == 'Merced County', 'Butte County', 'Sacramento County', 'Santa Clara County')
 
@@ -164,26 +168,34 @@ df_butte2 <- group_by(df_butte, type)
 
 df_butte3 <- filter(df_butte2, type %in% c('parks', 'residential', 'retail'))
 
+###AV setDT uses package data.table
+
+df_butte4 <- setDT(df_butte3)[between(date, '2020-03-25', '2020-09-05', incbounds=FALSE)]
+
 ###AV create plots per county (I know this isn't efficient and will not be the same, however I think it may be more instructive for me to go this route than with a 
 ###AV facet wrap that I don't quite get yet)
 
-ggplot(data = df_butte2, mapping = aes(x = date, y = pct_diff)) +
-  geom_hline(yintercept = 0, alpha = .5) +
-  geom_point() +
-  geom_line(color = variable)
+#ggplot(data = df_butte2, mapping = aes(x = date, y = pct_diff)) +
+#  geom_hline(yintercept = 0, alpha = .5) +
+#  geom_point() +
+#  geom_line(color = variable)
 
-summarize(df_butte2)
+#summarize(df_butte2)
 
-ggplot(data = df_butte3, mapping = aes(x = date, y = pct_diff, group = type)) +
-geom_line(aes(linetype=type, color=type)) +
-    geom_point()
 
+ggplot(data = df_butte4, mapping = aes(x = date, y = pct_diff, group = type)) +
+geom_line(aes(color=type)) +
+geom_hline(yintercept = 0, alpha = .5)
+
+#ggplot(data = df_butte3, mapping = aes(x = date, y = pct_diff, group = type)) +
+ #   geom_line(aes(color=type)) +
+ #   geom_point()
 
 ###AV the data is in the wrong format for me to be able to use this bit, they need ot be seperate y axies, but that isnt what I have done. I will check.
-ggplot(data = df_butte, mapping = aes(x = date, y = pct_diff)) +
-    geom_hline(yintercept = 0, alpha = .5) +
-    geom_line(aes(y = parks), color = "red") + 
-    geom_line(aes(y = residential), color="green", linetype="twodash") 
+#ggplot(data = df_butte, mapping = aes(x = date, y = pct_diff)) +
+#    geom_hline(yintercept = 0, alpha = .5) +
+#    geom_line(aes(y = parks), color = "red") + 
+#    geom_line(aes(y = residential), color="green", linetype="twodash") 
 
 
 #' 5. *Again, the standard narrative of Covid-19 in California says that people were staying home in the spring, then going out more in May-June as stay-at-home orders were lifted.  *
