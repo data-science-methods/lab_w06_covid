@@ -114,12 +114,6 @@ dataf |>
 #' day is the median value from the 5‑week period Jan 3 – Feb 6, 2020."-Google
 #' 
 
-# Misc Code
-#test1 <- group_by('census_fips_code')
-
-#count(mob_df, variable_name='census_fips_code')
-#count(mob_df[c('census_fips_code')])
-
 
 #' 2. *How about `pct_diff`?* 
 #' 
@@ -134,78 +128,104 @@ dataf |>
 skim(mob_df)
 
 
-
-
-
-
-
 #' 4. *In the `plots` folder, take a look at `mobility.png`.  Recreate this plot.  (Use whatever theme and colors that you like. *
 #'    *To create a horizontal line: `geom_hline(yintercept = 0, alpha = .5)`.  You don't need to save to disk.)* 
-#' Well, I thought I did well till I realized that I have to sort through dates. Life is hard.
+#'    
 
-###AV create seperate df for each county, will combine plots later
-    
+
+###AV *Create separate DF for each county and process new DFs*
+
+
+###AV   BUTTE COUNTY DF & PROCESSING    (Note: setDT uses package 'data.table')
+
 df_butte <- filter(mob_df, sub_region_2 == 'Butte County') 
-
-df_merced <- filter(mob_df, sub_region_2 == 'Merced County')
-
-df_sacramento <- filter(mob_df, sub_region_2 == 'Sacramento County')
-
-df_santaclara <- filter(mob_df, sub_region_2 == 'Santa Clara County')
-
-group_by(mob_df, type)
 
 df_butte2 <- group_by(df_butte, type)
 
 df_butte3 <- filter(df_butte2, type %in% c('parks', 'residential', 'retail'))
 
-###AV setDT uses package data.table
-
 df_butte4 <- setDT(df_butte3)[between(date, '2020-03-25', '2020-09-05', incbounds=FALSE)]
 
-###AV create plots per county (I know this isn't efficient and will not be the same, however I think it may be more instructive for me to go this route than with a 
-###AV facet wrap that I don't quite get yet)
 
-#ggplot(data = df_butte2, mapping = aes(x = date, y = pct_diff)) +
-#  geom_hline(yintercept = 0, alpha = .5) +
-#  geom_point() +
-#  geom_line(color = variable)
+###AV   MERCED COUNTY DF & PROCESSING
 
-#summarize(df_butte2)
+df_merced <- filter(mob_df, sub_region_2 == 'Merced County')
 
-# df_bmss <- filter(mob_df, cut == 'Merced County', 'Butte County', 'Sacramento County', 'Santa Clara County')
+df_merced2 <- group_by(df_merced, type)
 
-#regionsUsed <- c('Merced County', 'Butte County', 'Sacramento County', 'Santa Clara County')
-#df_bmss <- filter(mob_df, sub_region_2 %in% regionsUsed)
+df_merced3 <- filter(df_merced2, type %in% c('parks', 'residential', 'retail'))
 
-#ggplot(data = df_bmss, mapping = aes(x = date, y = pct_diff)) +
-#  geom_point() +
-#  geom_line(color = "blue")
+df_merced4 <- setDT(df_merced3)[between(date, '2020-03-25', '2020-09-05', incbounds=FALSE)]
 
 
-ggplot(data = df_butte4, mapping = aes(x = date, y = pct_diff, group = type)) +
-geom_line(aes(color=type)) +
-geom_hline(yintercept = 0, alpha = .5)
+###AV   SACRAMENTO COUNTY DF & PROCESSING
 
-#ggplot(data = df_butte3, mapping = aes(x = date, y = pct_diff, group = type)) +
- #   geom_line(aes(color=type)) +
- #   geom_point()
+df_sacramento <- filter(mob_df, sub_region_2 == 'Sacramento County')
 
-###AV the data is in the wrong format for me to be able to use this bit, they need ot be seperate y axies, but that isnt what I have done. I will check.
-#ggplot(data = df_butte, mapping = aes(x = date, y = pct_diff)) +
-#    geom_hline(yintercept = 0, alpha = .5) +
-#    geom_line(aes(y = parks), color = "red") + 
-#    geom_line(aes(y = residential), color="green", linetype="twodash") 
+df_sacramento2 <- group_by(df_sacramento, type)
+
+df_sacramento3 <- filter(df_sacramento2, type %in% c('parks', 'residential', 'retail'))
+
+df_sacramento4 <- setDT(df_sacramento3)[between(date, '2020-03-25', '2020-09-05', incbounds=FALSE)]
+
+###AV   SANTA CLARA COUNTY DF & PROCESSING
+
+df_santaclara <- filter(mob_df, sub_region_2 == 'Santa Clara County')
+
+df_santaclara2 <- group_by(df_sacramento, type)
+
+df_santaclara3 <- filter(df_santaclara2, type %in% c('parks', 'residential', 'retail'))
+
+df_santaclara4 <- setDT(df_santaclara3)[between(date, '2020-03-25', '2020-09-05', incbounds=FALSE)]
+
+###AV   PLOTS FOR EACH COUNTY
+
+plot_butte <- ggplot(data = df_butte4, mapping = aes(x = date, y = pct_diff, group = type)) +
+    geom_line(aes(color=type)) +
+    geom_hline(yintercept = 0, alpha = .5)
+
+plot_merced <- ggplot(data = df_merced4, mapping = aes(x = date, y = pct_diff, group = type)) +
+    geom_line(aes(color=type)) +
+    geom_hline(yintercept = 0, alpha = .5)
+
+plot_sacramento <- ggplot(data = df_sacramento4, mapping = aes(x = date, y = pct_diff, group = type)) +
+    geom_line(aes(color=type)) +
+    geom_hline(yintercept = 0, alpha = .5)
+
+plot_santaclara <- ggplot(data = df_santaclara4, mapping = aes(x = date, y = pct_diff, group = type)) +
+    geom_line(aes(color=type)) +
+    geom_hline(yintercept = 0, alpha = .5)
+
+###AV Huh, should have created a function for these huh? This is terribly inefficient. Will redo if time permits
+
+###AV   COMBINE PLOTS (Using GGPUBR)
+
+finalplot <- ggarrange(plot_butte, plot_merced, plot_sacramento, plot_santaclara,
+                    labels = c("Butte", "Merced", "Sacramento", "Santa Clara"),
+                    ncol = 2, nrow = 2)
+###AV Display Plot
+
+
+finalplot
+
+
+
+###AV Is it pretty? not at all, not even a little bit, but it is a plot, that looks mildly similar. If this were a project I would
+###AV ideally find out why data keeps getting removed at nearly every step :(
+
 
 
 #' 5. *Again, the standard narrative of Covid-19 in California says that people were staying home in the spring, then going out more in May-June as stay-at-home orders were lifted.  *
 #'    *Do this data support that narrative?*
-#'   
+#'   There does seem to be an uptick in retail pct differences as opposed to april.
 #'   
 #'   
 
 #' 6. *What other potentially interesting patterns do you see in these mobility data?* 
-#' 
+#' I suppose the residential weekend bit with the weekly oscillations is due not to people going out or staying in more, bur rather due to mon-fri
+#' typically being times where the average time at those places is lower. So even if a population stayed home the whole time, they would still demonstrate this pattern,
+#' because compared to the baseline week (pre-US acknowledgement of pandemic) on those days people would be working. It is also very strange to compare delta in time 
+#' with pct_diff over time itself with this line chart, we are tracking differences over differences, which doesnt seem like the optimal way to go about visualizing this.
 #' 
 #' 
 
@@ -229,6 +249,8 @@ geom_hline(yintercept = 0, alpha = .5)
 
 #' 1. *This is just one way we could get at the relationship between stay-at-home in June and the peak of the outbreak in July.  What are some other approaches we might take?*
 #' 
+#' test places which implemented and enforced stay at home against places which didn't (and have similar demographics/environmental bits) or we could model spread, or
+#' we could generally check other places/countries which had stay at home orders which were lifted and track differences that way. 
 #' 
 #' 
 
@@ -242,6 +264,23 @@ geom_hline(yintercept = 0, alpha = .5)
 #' - The final dataframe should have three columns: county name, FIPS code, and `parks`.  
 #' - And it should have one row for each county in the mobility data for which we have an estimate for "parks".*
 #' 
+
+parks_june <- 
+    
+    f_santaclara <- filter(mob_df, sub_region_2 == 'Santa Clara County')
+
+df_santaclara2 <- group_by(df_sacramento, type)
+
+df_santaclara3 <- filter(df_santaclara2, type %in% c('parks', 'residential', 'retail'))
+
+df_santaclara4 <- setDT(df_santaclara3)[between(date, '2020-03-25', '2020-09-05', incbounds=FALSE)]
+
+###AV   PLOTS FOR EACH COUNTY
+
+plot_butte <- ggplot(data = df_butte4, mapping = aes(x = date, y = pct_diff, group = type)) +
+    geom_line(aes(color=type)) +
+    geom_hline(yintercept = 0, alpha = .5)
+
 
 #' 3. *Construct a dataframe `cases_july` that reports the total level of new cases per 1 million residents of each county in July 2020.  (Don't worry about negative values.  *
 #' *I'm just asking you to do `sum(cases_per_pop)`.)  This dataframe should have three columns and one row for each county in the Covid-19 data.*
@@ -275,3 +314,47 @@ geom_hline(yintercept = 0, alpha = .5)
 #' 
 #' 
 #' 
+#' 
+
+
+
+
+# Misc Code, Please Ignore
+#
+#test1 <- group_by('census_fips_code')
+
+#count(mob_df, variable_name='census_fips_code')
+#count(mob_df[c('census_fips_code')])
+
+
+###AV create plots per county (I know this isn't efficient and will not be the same, however I think it may be more instructive for me to go this route than with a 
+###AV facet wrap that I don't quite get yet)
+
+#ggplot(data = df_butte2, mapping = aes(x = date, y = pct_diff)) +
+#  geom_hline(yintercept = 0, alpha = .5) +
+#  geom_point() +
+#  geom_line(color = variable)
+
+#summarize(df_butte2)
+
+# df_bmss <- filter(mob_df, cut == 'Merced County', 'Butte County', 'Sacramento County', 'Santa Clara County')
+
+#regionsUsed <- c('Merced County', 'Butte County', 'Sacramento County', 'Santa Clara County')
+#df_bmss <- filter(mob_df, sub_region_2 %in% regionsUsed)
+
+#ggplot(data = df_bmss, mapping = aes(x = date, y = pct_diff)) +
+#  geom_point() +
+#  geom_line(color = "blue")
+
+
+
+
+#ggplot(data = df_butte3, mapping = aes(x = date, y = pct_diff, group = type)) +
+#   geom_line(aes(color=type)) +
+#   geom_point()
+
+###AV the data is in the wrong format for me to be able to use this bit, they need ot be seperate y axies, but that isnt what I have done. I will check.
+#ggplot(data = df_butte, mapping = aes(x = date, y = pct_diff)) +
+#    geom_hline(yintercept = 0, alpha = .5) +
+#    geom_line(aes(y = parks), color = "red") + 
+#    geom_line(aes(y = residential), color="green", linetype="twodash") 
